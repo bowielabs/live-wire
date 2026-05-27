@@ -4,3 +4,6 @@ dist-ssr
 *.local
 .DS_Store
 .vite
+
+# Local Claude Code settings (personal; keep shared .claude/settings.json tracked)
+.claude/settings.local.json
