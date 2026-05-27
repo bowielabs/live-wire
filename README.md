@@ -146,17 +146,38 @@ Node environment.
 ## Deployment
 
 The build produces a fully static site in `dist/`, so it can be hosted on any
-static host or CDN.
+static host or CDN. No server or environment variables are needed at runtime —
+progress is stored client-side.
 
-### Cloudflare Pages / Netlify / Vercel (recommended)
+### Cloudflare Pages via GitHub Actions (configured)
 
-Connect the git repository and use:
+This repo ships a CI workflow at
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) that, on every
+push to `main` (and on pull requests), installs dependencies, runs the test
+suite, builds, and deploys to Cloudflare Pages with
+[`wrangler-action`](https://github.com/cloudflare/wrangler-action). The project
+name (`gatewright`) and output directory (`dist`) come from
+[`wrangler.toml`](wrangler.toml). Pushes to `main` publish the production
+deployment; PRs and other branches get preview deployments.
 
-- **Build command:** `npm run build`
-- **Output directory:** `dist`
+**One-time setup:**
 
-Each push triggers a build; pull requests get preview URLs. No server or
-environment variables are required — progress is stored client-side.
+1. **Create a Cloudflare API token** with the **"Cloudflare Pages — Edit"**
+   permission (Cloudflare dashboard → My Profile → API Tokens).
+2. **Find your Account ID** (Cloudflare dashboard → Workers & Pages → right
+   sidebar, or any account URL).
+3. **Add two GitHub repo secrets** (Settings → Secrets and variables → Actions):
+   - `CLOUDFLARE_API_TOKEN`
+   - `CLOUDFLARE_ACCOUNT_ID`
+4. **Create the Pages project once** (the workflow deploys into an existing
+   project). Either create a project named `gatewright` in the dashboard, or run
+   locally:
+   ```bash
+   npx wrangler pages project create gatewright --production-branch=main
+   ```
+
+After that, every push to `main` deploys automatically. Response caching and
+security headers are configured in [`public/_headers`](public/_headers).
 
 ### Any static host
 
