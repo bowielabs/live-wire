@@ -1,5 +1,7 @@
 # Gatewright
 
+**▶ Play it live: [gatewright.pages.dev](https://gatewright.pages.dev/)**
+
 A 100-level discrete-mathematics puzzle game. Wire IEC-notation logic gates on
 a canvas to satisfy a target Boolean function, then verify your circuit against
 every row of its truth table. Built with React, TypeScript, and Vite.
