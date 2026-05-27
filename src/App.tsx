@@ -128,10 +128,10 @@ export default function App() {
               WebkitTextFillColor: "transparent",
             }}
           >
-            Logic Gate Lab
+            Gatewright
           </h1>
           <span style={{ color: C.muted, fontSize: 13, fontFamily: "ui-monospace, monospace" }}>
-            100 levels · discrete maths · combinational circuits
+            100 levels · logic-circuit puzzles · discrete maths
           </span>
         </div>
 

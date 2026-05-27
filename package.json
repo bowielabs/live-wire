@@ -1,9 +1,9 @@
 {
-  "name": "logic-gate-lab",
+  "name": "gatewright",
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Logic Gate Lab — a 100-level discrete-mathematics circuit puzzle.",
+  "description": "A logic-circuit puzzle game: wire logic gates to match a target truth table across 100 levels.",
   "scripts": {
     "dev": "vite",
     "typecheck": "tsc --noEmit",

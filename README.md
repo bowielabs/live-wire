@@ -1,4 +1,4 @@
-# Logic Gate Lab
+# Gatewright
 
 A 100-level discrete-mathematics puzzle game. Wire IEC-notation logic gates on
 a canvas to satisfy a target Boolean function, then verify your circuit against
@@ -29,8 +29,8 @@ npm --version
 ## Install
 
 ```bash
-git clone <repo-url>
-cd logicgate
+git clone https://github.com/bowielabs/gatewright.git
+cd gatewright
 npm install
 ```
 

@@ -1,5 +1,5 @@
 /* ============================================================
-   Shared domain types for Logic Gate Lab.
+   Shared domain types for Gatewright.
    ============================================================ */
 
 export type GateType =
