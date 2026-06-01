@@ -1,6 +1,6 @@
 {
-  "name": "Gatewright",
-  "short_name": "Gatewright",
+  "name": "Wirecraft",
+  "short_name": "Wirecraft",
   "description": "A logic-circuit puzzle game: wire logic gates to match a target truth table across 100 levels.",
   "start_url": "/",
   "scope": "/",

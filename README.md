@@ -1,6 +1,6 @@
-# Gatewright
+# Wirecraft
 
-**▶ Play it live: [gatewright.pages.dev](https://gatewright.pages.dev/)**
+**▶ Play it live: [wirecraft.pages.dev](https://wirecraft.pages.dev/)**
 
 A 100-level discrete-mathematics puzzle game. Wire IEC-notation logic gates on
 a canvas to satisfy a target Boolean function, then verify your circuit against
@@ -33,8 +33,8 @@ npm --version
 ## Install
 
 ```bash
-git clone https://github.com/bowielabs/gatewright.git
-cd gatewright
+git clone https://github.com/bowielabs/wirecraft.git
+cd wirecraft
 npm install
 ```
 
@@ -160,7 +160,7 @@ This repo ships a CI workflow at
 push to `main` (and on pull requests), installs dependencies, runs the test
 suite, builds, and deploys to Cloudflare Pages with
 [`wrangler-action`](https://github.com/cloudflare/wrangler-action). The project
-name (`gatewright`) and output directory (`dist`) come from
+name (`wirecraft`) and output directory (`dist`) come from
 [`wrangler.toml`](wrangler.toml). Pushes to `main` publish the production
 deployment; PRs and other branches get preview deployments.
 
@@ -174,10 +174,10 @@ deployment; PRs and other branches get preview deployments.
    - `CLOUDFLARE_API_TOKEN`
    - `CLOUDFLARE_ACCOUNT_ID`
 4. **Create the Pages project once** (the workflow deploys into an existing
-   project). Either create a project named `gatewright` in the dashboard, or run
+   project). Either create a project named `wirecraft` in the dashboard, or run
    locally:
    ```bash
-   npx wrangler pages project create gatewright --production-branch=main
+   npx wrangler pages project create wirecraft --production-branch=main
    ```
 
 After that, every push to `main` deploys automatically. Response caching and

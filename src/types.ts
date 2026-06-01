@@ -1,5 +1,5 @@
 /* ============================================================
-   Shared domain types for Gatewright.
+   Shared domain types for Wirecraft.
    ============================================================ */
 
 export type GateType =
