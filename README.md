@@ -177,15 +177,12 @@ deployment; PRs and other branches get preview deployments.
 3. **Add two GitHub repo secrets** (Settings → Secrets and variables → Actions):
    - `CLOUDFLARE_API_TOKEN`
    - `CLOUDFLARE_ACCOUNT_ID`
-4. **Create the Pages project once** (the workflow deploys into an existing
-   project). Either create a project named `wirecraft` in the dashboard, or run
-   locally:
-   ```bash
-   npx wrangler pages project create wirecraft --production-branch=main
-   ```
 
-After that, every push to `main` deploys automatically. Response caching and
-security headers are configured in [`public/_headers`](public/_headers).
+That's it — the workflow itself runs `wrangler pages project create wirecraft`
+on every deploy (idempotently), so the very first push to `main` after the
+secrets are in place will create the Pages project and ship the build to it.
+Response caching and security headers are configured in
+[`public/_headers`](public/_headers).
 
 ### Any static host
 
