@@ -1,6 +1,7 @@
 import type { PointerEvent } from "react";
 import { useCallback, useMemo, useRef, useState } from "react";
 import type { GateType, LevelDef, NodeData, Pending, Wire } from "../types";
+import type { ShareV1 } from "../lib/share";
 import { buildBoard } from "../engine/board";
 import { portsOf, VBH, VBW } from "../engine/geometry";
 import { makesCycle, simulate } from "../engine/simulate";
@@ -225,6 +226,46 @@ export function useCircuit(initialDef: LevelDef, notify: (m: string) => void) {
     dragWireStartRef.current = null;
   }, []);
 
+  /** Restore a shared circuit on top of a fresh board for the level. */
+  const loadFromShare = useCallback((def: LevelDef, share: ShareV1) => {
+    const b = buildBoard(def);
+
+    /* Apply input toggles in declared order. */
+    const newInputValues: Record<string, boolean> = { ...b.inputValues };
+    def.inputs.forEach((_, idx) => {
+      newInputValues["in" + idx] = share.i[idx] === 1;
+    });
+
+    /* Place gates with deterministic ids (g0..gN-1). */
+    const gateNodes: NodeData[] = share.g.map(([type, x, y], idx) => ({
+      id: "g" + idx,
+      type: type as GateType,
+      x: Math.max(8, Math.min(VBW - 100, x)),
+      y: Math.max(6, Math.min(VBH - 56, y)),
+    }));
+    const newNodes = [...b.nodes, ...gateNodes];
+    const nodeIds = new Set(newNodes.map((n) => n.id));
+
+    /* Wires — skip any that reference unknown nodes or would create a cycle. */
+    const acceptedWires: Wire[] = [];
+    for (const [from, to, port] of share.w) {
+      if (!nodeIds.has(from) || !nodeIds.has(to)) continue;
+      const candidate: Wire = {
+        id: "w" + Math.random().toString(36).slice(2),
+        from: { node: from },
+        to: { node: to, port },
+      };
+      if (!makesCycle([...acceptedWires, candidate])) acceptedWires.push(candidate);
+    }
+
+    gateSeq.current = gateNodes.length;
+    setNodes(newNodes);
+    setWires(acceptedWires);
+    setInputValues(newInputValues);
+    setPending(null);
+    dragWireStartRef.current = null;
+  }, []);
+
   /* ---- pending wire preview source ---- */
   const pendPoint = useMemo(() => {
     if (!pending) return null;
@@ -260,6 +301,7 @@ export function useCircuit(initialDef: LevelDef, notify: (m: string) => void) {
     addGateAt,
     clearBoard,
     loadBoard,
+    loadFromShare,
   };
 }
 

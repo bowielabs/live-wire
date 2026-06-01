@@ -13,6 +13,7 @@ every row of its truth table. Built with React, TypeScript, and Vite.
 - **Truth-table verification**, par scoring, gated progression, and a free-play
   sandbox.
 - **Progress is saved locally** in your browser (`localStorage`).
+- **Shareable circuits** — any board state can be encoded into a `#share=…` URL fragment; opening the link restores the exact gates, wires, and input toggles.
 
 ---
 

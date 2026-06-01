@@ -9,6 +9,7 @@ import { useTheme } from "./hooks/useTheme";
 import { useTutorial } from "./hooks/useTutorial";
 import { useMuted } from "./hooks/useMuted";
 import { play } from "./lib/sound";
+import { readShareFromUrl } from "./lib/share";
 import AppBar from "./components/AppBar";
 import Toolbar from "./components/Toolbar";
 import CircuitCanvas from "./components/CircuitCanvas";
@@ -20,14 +21,36 @@ import LevelSelect from "./components/LevelSelect";
 import HowToPlay from "./components/HowToPlay";
 import Tutorial from "./components/Tutorial";
 import Confetti from "./components/Confetti";
+import ShareCircuit from "./components/ShareCircuit";
 
 type DrawerId = "levels" | "info" | null;
 
 export default function App() {
-  const [levelIdx, setLevelIdx] = useState<number | "sandbox">(0);
+  /* If the URL contains a #share=… payload, decode it once on mount so we
+     can initialise levelIdx and the circuit to the shared state directly
+     (rather than rendering Level 1 briefly and then jumping). */
+  const initialShare = useMemo(() => readShareFromUrl(), []);
+  const initialLevelIdx: number | "sandbox" = useMemo(() => {
+    if (!initialShare) return 0;
+    if (initialShare.l === "s") return "sandbox";
+    if (
+      typeof initialShare.l === "number" &&
+      initialShare.l >= 0 &&
+      initialShare.l < LEVELS.length
+    ) {
+      return initialShare.l;
+    }
+    return 0;
+  }, [initialShare]);
+  const initialDef =
+    initialLevelIdx === "sandbox" ? SANDBOX : LEVELS[initialLevelIdx];
+
+  const [levelIdx, setLevelIdx] = useState<number | "sandbox">(initialLevelIdx);
   const def = levelIdx === "sandbox" ? SANDBOX : LEVELS[levelIdx];
 
-  const [message, setMessage] = useState("Wire input A through a NOT gate to Q.");
+  const [message, setMessage] = useState(
+    initialShare ? "Shared circuit loaded — toggle inputs and verify." : "Wire input A through a NOT gate to Q."
+  );
   const [results, setResults] = useState<VerifyResult | null>(null);
   const [drawer, setDrawer] = useState<DrawerId>(null);
   const closeDrawer = useCallback(() => setDrawer(null), []);
@@ -35,8 +58,20 @@ export default function App() {
   const { solved, setSolved, resetProgress } = useProgress();
   const { theme, toggle: toggleTheme } = useTheme();
   const { muted, toggle: toggleMute } = useMuted();
-  const circuit = useCircuit(LEVELS[0], setMessage);
+  const circuit = useCircuit(initialDef, setMessage);
   const [solveToken, setSolveToken] = useState(0);
+
+  /* Apply the shared payload (gates + wires + input toggles) once. */
+  useEffect(() => {
+    if (!initialShare) return;
+    circuit.loadFromShare(initialDef, initialShare);
+    try {
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    } catch {
+      /* ignore */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const tutorial = useTutorial({
     levelIdx,
     nodes: circuit.nodes,
@@ -204,11 +239,19 @@ export default function App() {
         </div>
       </Drawer>
 
-      {/* ---- right drawer: level info + truth table ---- */}
+      {/* ---- right drawer: level info + truth table + share ---- */}
       <Drawer side="right" open={drawer === "info"} onClose={closeDrawer} title="Level details">
         <LevelInfo def={def} levelIdx={levelIdx} />
         <div style={{ marginTop: 12 }}>
           <TruthTable def={def} results={results} currentRow={currentRow} />
+        </div>
+        <div style={{ marginTop: 12 }}>
+          <ShareCircuit
+            levelIdx={levelIdx}
+            nodes={circuit.nodes}
+            wires={circuit.wires}
+            inputValues={circuit.inputValues}
+          />
         </div>
       </Drawer>
 
