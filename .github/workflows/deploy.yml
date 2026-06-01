@@ -42,7 +42,7 @@ jobs:
         # Idempotent: creates the project on the very first run, and harmlessly
         # fails-already-exists on every subsequent run (which is fine — the
         # next step is what actually deploys).
-        run: npx --yes wrangler pages project create wirecraft --production-branch=main || true
+        run: npx --yes wrangler pages project create live-wire --production-branch=main || true
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v4

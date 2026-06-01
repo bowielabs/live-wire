@@ -16,7 +16,7 @@ interface StepCopy {
 
 const COPY: Record<TutorialStep, StepCopy | null> = {
   welcome: {
-    title: "Welcome to Wirecraft",
+    title: "Welcome to Live Wire",
     body: "Level 1 asks you to build Q = ¬A — the inverter. I'll walk you through it. Four short steps.",
     nextLabel: "Start",
   },

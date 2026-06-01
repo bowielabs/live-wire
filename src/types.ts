@@ -1,5 +1,5 @@
 /* ============================================================
-   Shared domain types for Wirecraft.
+   Shared domain types for Live Wire.
    ============================================================ */
 
 export type GateType =

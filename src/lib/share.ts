@@ -3,7 +3,7 @@
 
    Encode { levelIdx, gates, wires, input toggles } into a compact
    base64url payload tucked into the URL fragment, e.g.
-       https://wirecraft.pages.dev/#share=eyJ2IjoxLC4uLn0
+       https://live-wire.pages.dev/#share=eyJ2IjoxLC4uLn0
    so anyone with the link gets the exact same board state on load.
    ============================================================ */
 

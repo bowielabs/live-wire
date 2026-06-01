@@ -1,6 +1,6 @@
 {
-  "name": "Wirecraft",
-  "short_name": "Wirecraft",
+  "name": "Live Wire",
+  "short_name": "Live Wire",
   "description": "A logic-circuit puzzle game: wire logic gates to match a target truth table across 100 levels.",
   "start_url": "/",
   "scope": "/",

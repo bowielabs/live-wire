@@ -1,4 +1,4 @@
 # Cloudflare Pages project configuration.
 # Used by `wrangler pages deploy` (run in CI by .github/workflows/deploy.yml).
-name = "wirecraft"
+name = "live-wire"
 pages_build_output_dir = "dist"

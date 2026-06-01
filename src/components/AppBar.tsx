@@ -63,7 +63,7 @@ export default function AppBar({
           letterSpacing: 0.4,
         }}
       >
-        Wirecraft
+        Live Wire
       </h1>
       <button
         onClick={onOpenInfo}

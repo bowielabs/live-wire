@@ -1,10 +1,10 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/bowielabs/wirecraft/main/public/icon.svg" alt="Wirecraft animated icon — current flowing through a logic gate" width="140" />
+  <img src="https://raw.githubusercontent.com/bowielabs/live-wire/main/public/icon.svg" alt="Live Wire animated icon — current flowing through a logic gate" width="140" />
 </p>
 
-# Wirecraft
+# Live Wire
 
-**▶ Play it live: [wirecraft.pages.dev](https://wirecraft.pages.dev/)**
+**▶ Play it live: [live-wire.pages.dev](https://live-wire.pages.dev/)**
 
 A 100-level discrete-mathematics puzzle game. Wire IEC-notation logic gates on
 a canvas to satisfy a target Boolean function, then verify your circuit against
@@ -37,8 +37,8 @@ npm --version
 ## Install
 
 ```bash
-git clone https://github.com/bowielabs/wirecraft.git
-cd wirecraft
+git clone https://github.com/bowielabs/live-wire.git
+cd live-wire
 npm install
 ```
 
@@ -164,7 +164,7 @@ This repo ships a CI workflow at
 push to `main` (and on pull requests), installs dependencies, runs the test
 suite, builds, and deploys to Cloudflare Pages with
 [`wrangler-action`](https://github.com/cloudflare/wrangler-action). The project
-name (`wirecraft`) and output directory (`dist`) come from
+name (`live-wire`) and output directory (`dist`) come from
 [`wrangler.toml`](wrangler.toml). Pushes to `main` publish the production
 deployment; PRs and other branches get preview deployments.
 
@@ -178,7 +178,7 @@ deployment; PRs and other branches get preview deployments.
    - `CLOUDFLARE_API_TOKEN`
    - `CLOUDFLARE_ACCOUNT_ID`
 
-That's it — the workflow itself runs `wrangler pages project create wirecraft`
+That's it — the workflow itself runs `wrangler pages project create live-wire`
 on every deploy (idempotently), so the very first push to `main` after the
 secrets are in place will create the Pages project and ship the build to it.
 Response caching and security headers are configured in

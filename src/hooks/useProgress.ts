@@ -60,7 +60,7 @@ export function useProgress() {
       try {
         await STORE.set(SAVE_KEY, JSON.stringify(solved));
       } catch (e) {
-        console.error("Wirecraft: could not save progress", e);
+        console.error("Live Wire: could not save progress", e);
       }
     })();
   }, [solved, loaded]);
