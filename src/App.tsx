@@ -5,6 +5,7 @@ import { simulate } from "./engine/simulate";
 import { C } from "./theme";
 import { useCircuit } from "./hooks/useCircuit";
 import { useProgress } from "./hooks/useProgress";
+import { useTheme } from "./hooks/useTheme";
 import Toolbar from "./components/Toolbar";
 import CircuitCanvas from "./components/CircuitCanvas";
 import StatusBar from "./components/StatusBar";
@@ -21,6 +22,7 @@ export default function App() {
   const [results, setResults] = useState<VerifyResult | null>(null);
 
   const { solved, setSolved, resetProgress } = useProgress();
+  const { theme, toggle: toggleTheme } = useTheme();
   const circuit = useCircuit(LEVELS[0], setMessage);
 
   const activeLevelRef = useRef<HTMLButtonElement>(null);
@@ -107,7 +109,7 @@ export default function App() {
     <div
       style={{
         minHeight: "100vh",
-        background: `radial-gradient(900px 500px at 18% -10%, #142036 0%, ${C.bg} 60%)`,
+        background: `radial-gradient(900px 500px at 18% -10%, ${C.appGradStart} 0%, ${C.bg} 60%)`,
         color: C.text,
         fontFamily: "'Georgia', 'Times New Roman', serif",
         padding: "18px 16px 40px",
@@ -123,7 +125,7 @@ export default function App() {
               fontSize: 30,
               letterSpacing: 0.5,
               fontWeight: 700,
-              background: `linear-gradient(90deg, ${C.accent}, #9d8bf2)`,
+              background: `linear-gradient(90deg, ${C.accent}, ${C.h1GradEnd})`,
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
             }}
@@ -133,6 +135,28 @@ export default function App() {
           <span style={{ color: C.muted, fontSize: 13, fontFamily: "ui-monospace, monospace" }}>
             100 levels · logic-circuit puzzles · discrete maths
           </span>
+          <div style={{ flex: 1 }} />
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+            title={theme === "dark" ? "Light mode" : "Dark mode"}
+            style={{
+              background: C.panel,
+              color: C.text,
+              border: `1px solid ${C.border}`,
+              borderRadius: 999,
+              width: 34,
+              height: 34,
+              cursor: "pointer",
+              fontSize: 15,
+              lineHeight: "30px",
+              padding: 0,
+              fontFamily: "inherit",
+            }}
+          >
+            {theme === "dark" ? "☾" : "☀"}
+          </button>
         </div>
 
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>

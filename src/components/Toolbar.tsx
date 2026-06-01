@@ -53,8 +53,8 @@ export default function Toolbar({ palette, showVerify, onAddGate, onClear, onRes
         <button
           onClick={onVerify}
           style={btn({
-            background: `linear-gradient(90deg, ${C.accent}, #2bb9d6)`,
-            color: "#04241f",
+            background: `linear-gradient(90deg, ${C.accent}, ${C.verifyGradEnd})`,
+            color: C.onAccentInk,
             fontWeight: 700,
             borderColor: C.accent,
           })}

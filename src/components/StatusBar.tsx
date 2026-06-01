@@ -19,7 +19,7 @@ export default function StatusBar({ message, results, gateCount, par, hasTarget,
         display: "flex",
         gap: 12,
         alignItems: "center",
-        background: results ? (results.allPass ? "#10301f" : "#301a22") : C.panel2,
+        background: results ? (results.allPass ? C.statusOkBg : C.statusFailBg) : C.panel2,
         border: `1px solid ${results ? (results.allPass ? C.on : C.bad) : C.border}`,
         borderRadius: 10,
         padding: "10px 13px",
@@ -34,7 +34,7 @@ export default function StatusBar({ message, results, gateCount, par, hasTarget,
         {hasTarget ? ` · par ${par}` : ""}
       </span>
       {showNext && (
-        <button onClick={onNext} style={btn({ background: C.on, color: "#04241f", fontWeight: 700, borderColor: C.on })}>
+        <button onClick={onNext} style={btn({ background: C.on, color: C.onAccentInk, fontWeight: 700, borderColor: C.on })}>
           Next level →
         </button>
       )}

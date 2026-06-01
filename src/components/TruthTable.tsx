@@ -43,7 +43,7 @@ export default function TruthTable({ def, results, currentRow }: TruthTableProps
               const here = i === currentRow;
               const res = results && results.rows[i];
               return (
-                <tr key={i} style={{ background: here ? "#1b2740" : "transparent", outline: here ? `1px solid ${C.accent}` : "none" }}>
+                <tr key={i} style={{ background: here ? C.rowActiveBg : "transparent", outline: here ? `1px solid ${C.accent}` : "none" }}>
                   {r.bits.map((b, j) => (
                     <td key={j} style={{ padding: "4px 6px", textAlign: "center", color: b ? C.on : C.faint, borderTop: `1px solid ${C.panel2}` }}>
                       {b}

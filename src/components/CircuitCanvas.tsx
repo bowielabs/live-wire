@@ -2,7 +2,7 @@ import type { Signal } from "../types";
 import type { CircuitApi } from "../hooks/useCircuit";
 import { GATES } from "../engine/gates";
 import { portsOf, VBH, VBW, wirePath } from "../engine/geometry";
-import { C, sigColor } from "../theme";
+import { C, wireStyle } from "../theme";
 import GateNode from "./GateNode";
 import IONode from "./IONode";
 
@@ -52,7 +52,7 @@ export default function CircuitCanvas({ circuit }: CircuitCanvasProps) {
       >
         <defs>
           <pattern id="grid" width="28" height="28" patternUnits="userSpaceOnUse">
-            <circle cx="1.5" cy="1.5" r="1.3" fill="#172238" />
+            <circle cx="1.5" cy="1.5" r="1.3" fill={C.gridDot} />
           </pattern>
         </defs>
         <rect x={0} y={0} width={VBW} height={VBH} fill={C.canvas} />
@@ -68,14 +68,16 @@ export default function CircuitCanvas({ circuit }: CircuitCanvasProps) {
           if (!fp || !tp) return null;
           const v = memo[w.from.node];
           const d = wirePath(fp.x, fp.y, tp.x, tp.y);
+          const ws = wireStyle(v);
           return (
             <g key={w.id}>
               <path d={d} fill="none" stroke="transparent" strokeWidth={16}
                 style={{ cursor: "pointer" }}
                 onPointerDown={(e) => { e.stopPropagation(); deleteWire(w.id); }} />
-              <path d={d} fill="none" stroke={sigColor(v)}
-                strokeWidth={v === true ? 3.2 : 2.4} strokeLinecap="round"
-                style={{ filter: v === true ? "drop-shadow(0 0 4px rgba(55,224,139,.55))" : "none", pointerEvents: "none" }} />
+              <path d={d} fill="none" stroke={ws.stroke}
+                strokeWidth={ws.strokeWidth} strokeLinecap="round"
+                strokeDasharray={ws.strokeDasharray} opacity={ws.opacity}
+                style={{ filter: ws.glow ? `drop-shadow(0 0 4px ${C.glowOnWire})` : "none", pointerEvents: "none" }} />
             </g>
           );
         })}

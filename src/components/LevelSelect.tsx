@@ -80,9 +80,9 @@ export default function LevelSelect({ solved, levelIdx, activeRef, onSelect, onR
                       onClick={() => onSelect(i)}
                       style={{
                         textAlign: "left",
-                        background: active ? "#1a2c44" : C.panel2,
+                        background: active ? C.levelActiveBg : C.panel2,
                         color: open ? C.text : C.faint,
-                        border: `1px solid ${active ? C.accent : isDone ? "#2c4a38" : C.border}`,
+                        border: `1px solid ${active ? C.accent : isDone ? C.levelDoneBorder : C.border}`,
                         borderRadius: 8,
                         padding: "7px 9px",
                         cursor: open ? "pointer" : "not-allowed",
@@ -116,7 +116,7 @@ export default function LevelSelect({ solved, levelIdx, activeRef, onSelect, onR
           marginTop: 8,
           width: "100%",
           textAlign: "left",
-          background: levelIdx === "sandbox" ? "#1a2c44" : C.panel2,
+          background: levelIdx === "sandbox" ? C.levelActiveBg : C.panel2,
           color: C.text,
           border: `1px solid ${levelIdx === "sandbox" ? C.accent : C.border}`,
           borderRadius: 8,

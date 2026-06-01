@@ -1,0 +1,105 @@
+/* ============================================================
+   Gatewright — theme tokens.
+   Dark is the default. Add data-theme="light" to <html> to flip.
+   All component code reads these via the C palette in src/theme.ts.
+   ============================================================ */
+
+:root,
+:root[data-theme="dark"] {
+  /* base palette */
+  --c-bg:          #070b15;
+  --c-canvas:      #0c1322;
+  --c-panel:       #111a2e;
+  --c-panel2:      #0e1626;
+  --c-border:      #243353;
+  --c-border-hi:   #33476f;
+  --c-text:        #dde6f7;
+  --c-muted:       #8294b6;
+  --c-faint:       #5d6e92;
+  --c-accent:      #3fe0c5;
+  --c-on:          #37e08b;
+  --c-off:         #34456b;
+  --c-nul:         #5b4f78;
+  --c-warn:        #f4a64d;
+  --c-bad:         #f2607a;
+
+  /* semantic / surface tokens */
+  --c-app-grad-start:    #142036;
+  --c-h1-grad-end:       #9d8bf2;
+  --c-verify-grad-end:   #2bb9d6;
+  --c-grid-dot:          #172238;
+  --c-gate-body:         #16223c;
+  --c-port-ring:         #0b1322;
+  --c-glow-on:           rgba(55, 224, 139, 0.45);
+  --c-glow-on-strong:    rgba(55, 224, 139, 0.7);
+  --c-glow-on-soft:      rgba(55, 224, 139, 0.4);
+  --c-glow-on-wire:      rgba(55, 224, 139, 0.55);
+  --c-input-on-bg:       #10301f;
+  --c-input-off-bg:      #141d33;
+  --c-output-bg:         #141d33;
+  --c-output-on-stroke:  #7af2b4;
+  --c-output-off-fill:   #22304e;
+  --c-output-null-fill:  #33294a;
+  --c-status-ok-bg:      #10301f;
+  --c-status-fail-bg:    #301a22;
+  --c-irl-bg:            #161f0f;
+  --c-irl-border:        #3c4a22;
+  --c-irl-text:          #cfe08a;
+  --c-irl-label:         #9bb24f;
+  --c-row-active-bg:     #1b2740;
+  --c-level-active-bg:   #1a2c44;
+  --c-level-done-border: #2c4a38;
+  --c-on-accent-ink:     #04241f;
+}
+
+:root[data-theme="light"] {
+  --c-bg:          #eef2f8;
+  --c-canvas:      #ffffff;
+  --c-panel:       #ffffff;
+  --c-panel2:      #f5f7fb;
+  --c-border:      #d9e0ec;
+  --c-border-hi:   #b8c4d8;
+  --c-text:        #0d1424;
+  --c-muted:       #4a5670;
+  --c-faint:       #7f8aa3;
+  --c-accent:      #169c8d;
+  --c-on:          #1f9e63;
+  --c-off:         #c8d2e2;
+  --c-nul:         #c5b8db;
+  --c-warn:        #c4751e;
+  --c-bad:         #c63a55;
+
+  --c-app-grad-start:    #e3eaf6;
+  --c-h1-grad-end:       #6a4ed8;
+  --c-verify-grad-end:   #128da3;
+  --c-grid-dot:          #d8dfee;
+  --c-gate-body:         #ffffff;
+  --c-port-ring:         #97a3bb;
+  --c-glow-on:           rgba(31, 158, 99, 0.30);
+  --c-glow-on-strong:    rgba(31, 158, 99, 0.45);
+  --c-glow-on-soft:      rgba(31, 158, 99, 0.28);
+  --c-glow-on-wire:      rgba(31, 158, 99, 0.35);
+  --c-input-on-bg:       #d6f3df;
+  --c-input-off-bg:      #f0f3fa;
+  --c-output-bg:         #f0f3fa;
+  --c-output-on-stroke:  #46c283;
+  --c-output-off-fill:   #c8d2e2;
+  --c-output-null-fill:  #d5cae5;
+  --c-status-ok-bg:      #d6f3df;
+  --c-status-fail-bg:    #fadfe4;
+  --c-irl-bg:            #f1f6dc;
+  --c-irl-border:        #c2cf8e;
+  --c-irl-text:          #4a5a1e;
+  --c-irl-label:         #6e7e2c;
+  --c-row-active-bg:     #e8eeff;
+  --c-level-active-bg:   #e7eefc;
+  --c-level-done-border: #a8d6bb;
+  --c-on-accent-ink:     #04241f;
+}
+
+/* page reset + smooth theme transition */
+html { color-scheme: dark light; }
+:root[data-theme="dark"]  { color-scheme: dark; }
+:root[data-theme="light"] { color-scheme: light; }
+body { margin: 0; background: var(--c-bg); }
+body, button, input, select { transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease; }

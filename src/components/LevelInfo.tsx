@@ -46,16 +46,16 @@ export default function LevelInfo({ def, levelIdx }: LevelInfoProps) {
         <div
           style={{
             marginTop: 10,
-            background: "#161f0f",
-            border: `1px solid #3c4a22`,
+            background: C.irlBg,
+            border: `1px solid ${C.irlBorder}`,
             borderRadius: 8,
             padding: "8px 10px",
             fontSize: 12.5,
-            color: "#cfe08a",
+            color: C.irlText,
             lineHeight: 1.55,
           }}
         >
-          <span style={{ fontFamily: "ui-monospace, monospace", fontSize: 10.5, letterSpacing: 1, color: "#9bb24f" }}>
+          <span style={{ fontFamily: "ui-monospace, monospace", fontSize: 10.5, letterSpacing: 1, color: C.irlLabel }}>
             ⚡ IN THE REAL WORLD
           </span>
           <div style={{ marginTop: 3 }}>{def.irl}</div>

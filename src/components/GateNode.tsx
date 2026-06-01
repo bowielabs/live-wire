@@ -42,10 +42,10 @@ export default function GateNode({
       {/* body */}
       <rect
         x={node.x} y={node.y} width={w} height={h} rx={9}
-        fill="#16223c" stroke={lit ? C.on : fam}
+        fill={C.gateBody} stroke={lit ? C.on : fam}
         strokeWidth={lit ? 2.2 : 1.5}
         onPointerDown={(e) => onBodyDown(e, node)}
-        style={{ cursor: "grab", filter: lit ? "drop-shadow(0 0 5px rgba(55,224,139,.45))" : "none" }}
+        style={{ cursor: "grab", filter: lit ? `drop-shadow(0 0 5px ${C.glowOn})` : "none" }}
       />
       <rect x={node.x} y={node.y} width={w} height={7} rx={3.5} fill={fam} opacity={0.85}
         style={{ pointerEvents: "none" }} />
@@ -74,7 +74,7 @@ export default function GateNode({
             style={{ cursor: "crosshair" }}>
             <circle cx={p.x} cy={p.y} r={10} fill="transparent" />
             <circle cx={p.x} cy={p.y} r={5.2} fill={sigColor(iv)}
-              stroke={sel ? C.accent : "#0b1322"} strokeWidth={sel ? 2.4 : 1.5} />
+              stroke={sel ? C.accent : C.portRing} strokeWidth={sel ? 2.4 : 1.5} />
           </g>
         );
       })}
@@ -84,7 +84,7 @@ export default function GateNode({
           style={{ cursor: "crosshair" }}>
           <circle cx={ports.output.x} cy={ports.output.y} r={10} fill="transparent" />
           <circle cx={ports.output.x} cy={ports.output.y} r={5.2} fill={sigColor(value)}
-            stroke={pending && pending.node === node.id && pending.kind === "out" ? C.accent : "#0b1322"}
+            stroke={pending && pending.node === node.id && pending.kind === "out" ? C.accent : C.portRing}
             strokeWidth={pending && pending.node === node.id && pending.kind === "out" ? 2.4 : 1.5} />
         </g>
       )}
