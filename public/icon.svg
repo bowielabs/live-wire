@@ -12,7 +12,7 @@
   <!-- gradient background -->
   <rect width="512" height="512" rx="96" fill="url(#bg)"/>
 
-  <!-- wires (dark, bold) -->
+  <!-- wires (dark, bold base) -->
   <g stroke="#0c1322" stroke-width="22" stroke-linecap="round" fill="none">
     <path d="M 100 196 L 200 196"/>
     <path d="M 100 316 L 200 316"/>
@@ -26,10 +26,27 @@
   <!-- family-colour stripe at the top, clipped to the body's rounded corners -->
   <rect x="190" y="170" width="140" height="22" fill="#3fd6e0" clip-path="url(#bodyClip)"/>
 
-  <!-- ports (filled green = "signal on") -->
+  <!-- animated current: white dashes flowing along the wires toward the gate
+       (inputs) and away from it (output). One dash-cycle = 36px (14 dash + 22 gap). -->
+  <g stroke="#ffffff" stroke-width="6" stroke-linecap="round" fill="none"
+     stroke-dasharray="14 22" opacity="0.85">
+    <path d="M 100 196 L 200 196">
+      <animate attributeName="stroke-dashoffset" from="0" to="-36" dur="0.9s" repeatCount="indefinite"/>
+    </path>
+    <path d="M 100 316 L 200 316">
+      <animate attributeName="stroke-dashoffset" from="0" to="-36" dur="0.9s" repeatCount="indefinite"/>
+    </path>
+    <path d="M 320 256 L 420 256">
+      <animate attributeName="stroke-dashoffset" from="0" to="-36" dur="0.9s" repeatCount="indefinite"/>
+    </path>
+  </g>
+
+  <!-- ports (filled green = "signal on"); output port breathes in sync with the flow -->
   <g stroke="#0c1322" stroke-width="8">
     <circle cx="100" cy="196" r="26" fill="#37e08b"/>
     <circle cx="100" cy="316" r="26" fill="#37e08b"/>
-    <circle cx="420" cy="256" r="26" fill="#37e08b"/>
+    <circle cx="420" cy="256" r="26" fill="#37e08b">
+      <animate attributeName="r" values="26;30;26" keyTimes="0;0.5;1" dur="0.9s" repeatCount="indefinite"/>
+    </circle>
   </g>
 </svg>

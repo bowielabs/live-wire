@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/bowielabs/wirecraft/main/public/icon.svg" alt="Wirecraft animated icon — current flowing through a logic gate" width="140" />
+</p>
+
 # Wirecraft
 
 **▶ Play it live: [wirecraft.pages.dev](https://wirecraft.pages.dev/)**
