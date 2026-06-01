@@ -1,0 +1,20 @@
+{
+  "name": "Gatewright",
+  "short_name": "Gatewright",
+  "description": "A logic-circuit puzzle game: wire logic gates to match a target truth table across 100 levels.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#070b15",
+  "theme_color": "#3fe0c5",
+  "categories": ["games", "education"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
