@@ -103,3 +103,27 @@ html { color-scheme: dark light; }
 :root[data-theme="light"] { color-scheme: light; }
 body { margin: 0; background: var(--c-bg); }
 body, button, input, select { transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease; }
+
+/* ---- juice ---- */
+@keyframes gw-fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes gw-wire-flash {
+  0%   { stroke-opacity: 0.2; filter: drop-shadow(0 0 6px var(--c-glow-on-wire)); }
+  50%  { stroke-opacity: 1;   filter: drop-shadow(0 0 8px var(--c-glow-on-wire)); }
+  100% { stroke-opacity: 1;   filter: none; }
+}
+@keyframes gw-confetti {
+  0%   { transform: translate(-50%, -50%) rotate(0deg) scale(1);   opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--dx, 0px)), calc(-50% + var(--dy, 0px))) rotate(var(--rot, 360deg)) scale(0.5); opacity: 0; }
+}
+
+.gw-pop-in   { animation: gw-fadein 220ms ease-out; }
+.gw-wire-in  { animation: gw-wire-flash 420ms ease-out; }
+
+/* respect users who don't want animations */
+@media (prefers-reduced-motion: reduce) {
+  .gw-pop-in, .gw-wire-in { animation: none !important; }
+  span[style*="gw-confetti"] { animation: none !important; opacity: 0 !important; }
+}

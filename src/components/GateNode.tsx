@@ -33,7 +33,7 @@ export default function GateNode({
   const lit = value === true;
 
   return (
-    <g>
+    <g className="gw-pop-in">
       {/* output stub + negation bubble */}
       <line x1={node.x + w} y1={node.y + h / 2} x2={node.x + w + 11} y2={node.y + h / 2}
         stroke={sigColor(value)} strokeWidth={2.4} />

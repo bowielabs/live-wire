@@ -4,7 +4,9 @@ import { C } from "../theme";
 export interface AppBarProps {
   levelLabel: string;
   theme: Theme;
+  muted: boolean;
   onToggleTheme: () => void;
+  onToggleMute: () => void;
   onOpenLevels: () => void;
   onOpenInfo: () => void;
 }
@@ -23,7 +25,15 @@ const iconBtn = {
   fontFamily: "inherit",
 } as const;
 
-export default function AppBar({ levelLabel, theme, onToggleTheme, onOpenLevels, onOpenInfo }: AppBarProps) {
+export default function AppBar({
+  levelLabel,
+  theme,
+  muted,
+  onToggleTheme,
+  onToggleMute,
+  onOpenLevels,
+  onOpenInfo,
+}: AppBarProps) {
   return (
     <header
       style={{
@@ -76,6 +86,14 @@ export default function AppBar({ levelLabel, theme, onToggleTheme, onOpenLevels,
         {levelLabel}
       </button>
       <div style={{ flex: 1 }} />
+      <button
+        onClick={onToggleMute}
+        aria-label={muted ? "Unmute sound effects" : "Mute sound effects"}
+        title={muted ? "Unmute" : "Mute"}
+        style={iconBtn}
+      >
+        {muted ? "🔇" : "🔊"}
+      </button>
       <button
         onClick={onToggleTheme}
         aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}

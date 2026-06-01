@@ -105,6 +105,7 @@ export default function CircuitCanvas({ circuit }: CircuitCanvasProps) {
               <path d={d} fill="none" stroke={ws.stroke}
                 strokeWidth={ws.strokeWidth} strokeLinecap="round"
                 strokeDasharray={ws.strokeDasharray} opacity={ws.opacity}
+                className="gw-wire-in"
                 style={{ filter: ws.glow ? `drop-shadow(0 0 4px ${C.glowOnWire})` : "none", pointerEvents: "none" }} />
             </g>
           );

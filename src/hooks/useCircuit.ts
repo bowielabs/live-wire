@@ -4,6 +4,7 @@ import type { GateType, LevelDef, NodeData, Pending, Wire } from "../types";
 import { buildBoard } from "../engine/board";
 import { portsOf, VBH, VBW } from "../engine/geometry";
 import { makesCycle, simulate } from "../engine/simulate";
+import { play } from "../lib/sound";
 
 interface Drag {
   id: string;
@@ -82,6 +83,7 @@ export function useCircuit(initialDef: LevelDef, notify: (m: string) => void) {
         return false;
       }
       setWires(next);
+      play("wire-connect");
       return true;
     },
     [notify]
@@ -191,6 +193,7 @@ export function useCircuit(initialDef: LevelDef, notify: (m: string) => void) {
     const k = gateSeq.current++;
     const id = "g" + k;
     setNodes((ns) => [...ns, { id, type, x: 312 + (k % 3) * 40, y: 70 + (k % 4) * 88 }]);
+    play("gate-place");
   };
 
   /** Drag-from-palette: add a gate at the given svg coordinates (clamped). */
@@ -200,6 +203,7 @@ export function useCircuit(initialDef: LevelDef, notify: (m: string) => void) {
     const cx = Math.max(8, Math.min(VBW - 100, x - 38));
     const cy = Math.max(6, Math.min(VBH - 56, y - 25));
     setNodes((ns) => [...ns, { id, type, x: cx, y: cy }]);
+    play("gate-place");
   };
 
   /** Reset the board to just the inputs + output (keeps the current level). */

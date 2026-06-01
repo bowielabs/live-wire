@@ -7,6 +7,8 @@ import { useCircuit } from "./hooks/useCircuit";
 import { useProgress } from "./hooks/useProgress";
 import { useTheme } from "./hooks/useTheme";
 import { useTutorial } from "./hooks/useTutorial";
+import { useMuted } from "./hooks/useMuted";
+import { play } from "./lib/sound";
 import AppBar from "./components/AppBar";
 import Toolbar from "./components/Toolbar";
 import CircuitCanvas from "./components/CircuitCanvas";
@@ -17,6 +19,7 @@ import TruthTable from "./components/TruthTable";
 import LevelSelect from "./components/LevelSelect";
 import HowToPlay from "./components/HowToPlay";
 import Tutorial from "./components/Tutorial";
+import Confetti from "./components/Confetti";
 
 type DrawerId = "levels" | "info" | null;
 
@@ -31,7 +34,9 @@ export default function App() {
 
   const { solved, setSolved, resetProgress } = useProgress();
   const { theme, toggle: toggleTheme } = useTheme();
+  const { muted, toggle: toggleMute } = useMuted();
   const circuit = useCircuit(LEVELS[0], setMessage);
+  const [solveToken, setSolveToken] = useState(0);
   const tutorial = useTutorial({
     levelIdx,
     nodes: circuit.nodes,
@@ -116,8 +121,11 @@ export default function App() {
           ? "Solved — and at or below par. A clean, optimal circuit."
           : "Solved! The circuit matches every row of the truth table."
       );
+      play("success");
+      setSolveToken((t) => t + 1);
     } else {
       setMessage("Not quite — the highlighted rows do not match. Keep going.");
+      play("fail");
     }
   };
 
@@ -147,7 +155,9 @@ export default function App() {
         <AppBar
           levelLabel={levelLabel}
           theme={theme}
+          muted={muted}
           onToggleTheme={toggleTheme}
+          onToggleMute={toggleMute}
           onOpenLevels={() => setDrawer("levels")}
           onOpenInfo={() => setDrawer("info")}
         />
@@ -206,6 +216,9 @@ export default function App() {
       {tutorial.active && (
         <Tutorial step={tutorial.step} onNext={tutorial.next} onSkip={tutorial.skip} />
       )}
+
+      {/* ---- solve celebration ---- */}
+      <Confetti token={solveToken} />
     </div>
   );
 }
