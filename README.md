@@ -14,6 +14,7 @@ every row of its truth table. Built with React, TypeScript, and Vite.
   sandbox.
 - **Progress is saved locally** in your browser (`localStorage`).
 - **Shareable circuits** — any board state can be encoded into a `#share=…` URL fragment; opening the link restores the exact gates, wires, and input toggles.
+- **Installable PWA, offline-capable** — manifest + service worker precache every built asset; once visited, the game runs without a network connection.
 
 ---
 
