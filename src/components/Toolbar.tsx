@@ -4,14 +4,12 @@ import { btn, C } from "../theme";
 
 export interface ToolbarProps {
   palette: GateType[];
-  showVerify: boolean;
   onAddGate: (t: GateType) => void;
   onClear: () => void;
   onReset: () => void;
-  onVerify: () => void;
 }
 
-export default function Toolbar({ palette, showVerify, onAddGate, onClear, onReset, onVerify }: ToolbarProps) {
+export default function Toolbar({ palette, onAddGate, onClear, onReset }: ToolbarProps) {
   return (
     <div
       style={{
@@ -49,19 +47,6 @@ export default function Toolbar({ palette, showVerify, onAddGate, onClear, onRes
       <button onClick={onReset} style={btn()}>
         Reset
       </button>
-      {showVerify && (
-        <button
-          onClick={onVerify}
-          style={btn({
-            background: `linear-gradient(90deg, ${C.accent}, ${C.verifyGradEnd})`,
-            color: C.onAccentInk,
-            fontWeight: 700,
-            borderColor: C.accent,
-          })}
-        >
-          ▶ Verify
-        </button>
-      )}
     </div>
   );
 }

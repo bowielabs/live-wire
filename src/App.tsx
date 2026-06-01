@@ -6,13 +6,17 @@ import { C } from "./theme";
 import { useCircuit } from "./hooks/useCircuit";
 import { useProgress } from "./hooks/useProgress";
 import { useTheme } from "./hooks/useTheme";
+import AppBar from "./components/AppBar";
 import Toolbar from "./components/Toolbar";
 import CircuitCanvas from "./components/CircuitCanvas";
-import StatusBar from "./components/StatusBar";
+import BottomBar from "./components/BottomBar";
+import Drawer from "./components/Drawer";
 import LevelInfo from "./components/LevelInfo";
 import TruthTable from "./components/TruthTable";
 import LevelSelect from "./components/LevelSelect";
 import HowToPlay from "./components/HowToPlay";
+
+type DrawerId = "levels" | "info" | null;
 
 export default function App() {
   const [levelIdx, setLevelIdx] = useState<number | "sandbox">(0);
@@ -20,6 +24,8 @@ export default function App() {
 
   const [message, setMessage] = useState("Wire input A through a NOT gate to Q.");
   const [results, setResults] = useState<VerifyResult | null>(null);
+  const [drawer, setDrawer] = useState<DrawerId>(null);
+  const closeDrawer = useCallback(() => setDrawer(null), []);
 
   const { solved, setSolved, resetProgress } = useProgress();
   const { theme, toggle: toggleTheme } = useTheme();
@@ -27,10 +33,12 @@ export default function App() {
 
   const activeLevelRef = useRef<HTMLButtonElement>(null);
 
-  /* keep the active level visible in the (long) level list */
+  /* keep the active level visible whenever the level drawer opens */
   useEffect(() => {
-    if (activeLevelRef.current) activeLevelRef.current.scrollIntoView({ block: "nearest" });
-  }, [levelIdx]);
+    if (drawer === "levels" && activeLevelRef.current) {
+      activeLevelRef.current.scrollIntoView({ block: "nearest" });
+    }
+  }, [drawer, levelIdx]);
 
   /* ---- load a level ---- */
   const loadLevel = useCallback(
@@ -46,6 +54,14 @@ export default function App() {
       );
     },
     [circuit.loadBoard]
+  );
+
+  const selectLevelAndClose = useCallback(
+    (idx: number | "sandbox") => {
+      loadLevel(idx);
+      closeDrawer();
+    },
+    [loadLevel, closeDrawer]
   );
 
   /* ---- current input row (for truth-table highlight) ---- */
@@ -105,6 +121,9 @@ export default function App() {
   const showNext =
     !!results && results.allPass && typeof levelIdx === "number" && levelIdx < LEVELS.length - 1;
 
+  const levelLabel =
+    typeof levelIdx === "number" ? `LV ${levelIdx + 1}/100 · ${def.name}` : "SANDBOX";
+
   return (
     <div
       style={{
@@ -112,91 +131,62 @@ export default function App() {
         background: `radial-gradient(900px 500px at 18% -10%, ${C.appGradStart} 0%, ${C.bg} 60%)`,
         color: C.text,
         fontFamily: "'Georgia', 'Times New Roman', serif",
-        padding: "18px 16px 40px",
+        padding: "12px 12px 24px",
         boxSizing: "border-box",
       }}
     >
       <div style={{ maxWidth: 1180, margin: "0 auto" }}>
-        {/* header */}
-        <div style={{ display: "flex", alignItems: "baseline", gap: 14, flexWrap: "wrap", marginBottom: 4 }}>
-          <h1
-            style={{
-              margin: 0,
-              fontSize: 30,
-              letterSpacing: 0.5,
-              fontWeight: 700,
-              background: `linear-gradient(90deg, ${C.accent}, ${C.h1GradEnd})`,
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
-          >
-            Gatewright
-          </h1>
-          <span style={{ color: C.muted, fontSize: 13, fontFamily: "ui-monospace, monospace" }}>
-            100 levels · logic-circuit puzzles · discrete maths
-          </span>
-          <div style={{ flex: 1 }} />
-          <button
-            type="button"
-            onClick={toggleTheme}
-            aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
-            title={theme === "dark" ? "Light mode" : "Dark mode"}
-            style={{
-              background: C.panel,
-              color: C.text,
-              border: `1px solid ${C.border}`,
-              borderRadius: 999,
-              width: 34,
-              height: 34,
-              cursor: "pointer",
-              fontSize: 15,
-              lineHeight: "30px",
-              padding: 0,
-              fontFamily: "inherit",
-            }}
-          >
-            {theme === "dark" ? "☾" : "☀"}
-          </button>
-        </div>
+        <AppBar
+          levelLabel={levelLabel}
+          theme={theme}
+          onToggleTheme={toggleTheme}
+          onOpenLevels={() => setDrawer("levels")}
+          onOpenInfo={() => setDrawer("info")}
+        />
 
-        <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-          {/* ---------- LEFT: canvas + toolbar ---------- */}
-          <div style={{ flex: "1 1 600px", minWidth: 320 }}>
-            <Toolbar
-              palette={def.palette}
-              showVerify={!!def.target}
-              onAddGate={circuit.addGate}
-              onClear={handleClear}
-              onReset={() => loadLevel(levelIdx)}
-              onVerify={runVerify}
-            />
-            <CircuitCanvas circuit={circuit} />
-            <StatusBar
-              message={message}
-              results={results}
-              gateCount={circuit.gateCount}
-              par={def.par}
-              hasTarget={!!def.target}
-              showNext={showNext}
-              onNext={() => loadLevel((levelIdx as number) + 1)}
-            />
-          </div>
+        <Toolbar
+          palette={def.palette}
+          onAddGate={circuit.addGate}
+          onClear={handleClear}
+          onReset={() => loadLevel(levelIdx)}
+        />
 
-          {/* ---------- RIGHT: info panel ---------- */}
-          <div style={{ flex: "1 1 300px", minWidth: 280, display: "flex", flexDirection: "column", gap: 14 }}>
-            <LevelInfo def={def} levelIdx={levelIdx} />
-            <TruthTable def={def} results={results} currentRow={currentRow} />
-            <LevelSelect
-              solved={solved}
-              levelIdx={levelIdx}
-              activeRef={activeLevelRef}
-              onSelect={loadLevel}
-              onResetProgress={resetProgress}
-            />
-            <HowToPlay />
-          </div>
-        </div>
+        <CircuitCanvas circuit={circuit} />
+
+        <BottomBar
+          message={message}
+          results={results}
+          gateCount={circuit.gateCount}
+          par={def.par}
+          hasTarget={!!def.target}
+          showNext={showNext}
+          onToggleTruth={() => setDrawer("info")}
+          onVerify={runVerify}
+          onNext={() => loadLevel((levelIdx as number) + 1)}
+        />
       </div>
+
+      {/* ---- left drawer: levels + how to play ---- */}
+      <Drawer side="left" open={drawer === "levels"} onClose={closeDrawer} title="Levels">
+        <LevelSelect
+          solved={solved}
+          levelIdx={levelIdx}
+          activeRef={activeLevelRef}
+          onSelect={selectLevelAndClose}
+          onResetProgress={resetProgress}
+        />
+        <div style={{ marginTop: 12 }}>
+          <HowToPlay />
+        </div>
+      </Drawer>
+
+      {/* ---- right drawer: level info + truth table ---- */}
+      <Drawer side="right" open={drawer === "info"} onClose={closeDrawer} title="Level details">
+        <LevelInfo def={def} levelIdx={levelIdx} />
+        <div style={{ marginTop: 12 }}>
+          <TruthTable def={def} results={results} currentRow={currentRow} />
+        </div>
+      </Drawer>
     </div>
   );
 }
