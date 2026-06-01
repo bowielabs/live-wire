@@ -6,6 +6,7 @@ import { C } from "./theme";
 import { useCircuit } from "./hooks/useCircuit";
 import { useProgress } from "./hooks/useProgress";
 import { useTheme } from "./hooks/useTheme";
+import { useTutorial } from "./hooks/useTutorial";
 import AppBar from "./components/AppBar";
 import Toolbar from "./components/Toolbar";
 import CircuitCanvas from "./components/CircuitCanvas";
@@ -15,6 +16,7 @@ import LevelInfo from "./components/LevelInfo";
 import TruthTable from "./components/TruthTable";
 import LevelSelect from "./components/LevelSelect";
 import HowToPlay from "./components/HowToPlay";
+import Tutorial from "./components/Tutorial";
 
 type DrawerId = "levels" | "info" | null;
 
@@ -30,6 +32,12 @@ export default function App() {
   const { solved, setSolved, resetProgress } = useProgress();
   const { theme, toggle: toggleTheme } = useTheme();
   const circuit = useCircuit(LEVELS[0], setMessage);
+  const tutorial = useTutorial({
+    levelIdx,
+    nodes: circuit.nodes,
+    wires: circuit.wires,
+    results,
+  });
 
   const activeLevelRef = useRef<HTMLButtonElement>(null);
 
@@ -176,7 +184,13 @@ export default function App() {
           onResetProgress={resetProgress}
         />
         <div style={{ marginTop: 12 }}>
-          <HowToPlay />
+          <HowToPlay
+            onReplayTutorial={() => {
+              tutorial.replay();
+              loadLevel(0);
+              closeDrawer();
+            }}
+          />
         </div>
       </Drawer>
 
@@ -187,6 +201,11 @@ export default function App() {
           <TruthTable def={def} results={results} currentRow={currentRow} />
         </div>
       </Drawer>
+
+      {/* ---- first-run interactive tutorial (Level 1 only) ---- */}
+      {tutorial.active && (
+        <Tutorial step={tutorial.step} onNext={tutorial.next} onSkip={tutorial.skip} />
+      )}
     </div>
   );
 }
