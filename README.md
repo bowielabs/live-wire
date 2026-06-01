@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/bowielabs/live-wire/main/public/icon.svg" alt="Live Wire animated icon — current flowing through a logic gate" width="140" />
+  <img src="https://raw.githubusercontent.com/bowielabs/live-wire/main/public/og-image.png" alt="Live Wire — wire the gates, light up the signals. 100 levels of logic-circuit puzzles." />
 </p>
 
 # Live Wire
