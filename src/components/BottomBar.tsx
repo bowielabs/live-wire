@@ -42,7 +42,7 @@ export default function BottomBar({
       <span style={{ color: results ? (results.allPass ? C.on : C.bad) : C.text, flex: "1 1 200px" }}>
         {message}
       </span>
-      <span style={{ color: C.muted, fontFamily: "ui-monospace, monospace", fontSize: 12 }}>
+      <span style={{ color: C.muted, fontFamily: "var(--font-mono)", fontSize: 12 }}>
         gates: {gateCount}
         {hasTarget ? ` · par ${par}` : ""}
       </span>
@@ -55,7 +55,7 @@ export default function BottomBar({
         <button
           onClick={onVerify}
           style={btn({
-            background: `linear-gradient(90deg, ${C.accent}, ${C.verifyGradEnd})`,
+            background: C.accent,
             color: C.onAccentInk,
             fontWeight: 700,
             borderColor: C.accent,

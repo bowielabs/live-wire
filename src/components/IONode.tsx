@@ -31,10 +31,10 @@ export default function IONode({ node, value, ports, onBodyDown, onPort, onPortU
             fill={on ? C.inputOnBg : C.inputOffBg} stroke={on ? C.on : C.borderHi}
             strokeWidth={1.6} onPointerDown={(e) => { e.stopPropagation(); onToggle(node.id); }}
             style={{ cursor: "pointer", filter: on ? `drop-shadow(0 0 6px ${C.glowOnSoft})` : "none" }} />
-          <text x={node.x + 11} y={node.y + 17} fontFamily="ui-monospace, monospace"
+          <text x={node.x + 11} y={node.y + 17} fontFamily="var(--font-mono)"
             fontSize={11} fill={C.muted} style={{ pointerEvents: "none", userSelect: "none" }}>{node.label}</text>
           <text x={node.x + w / 2} y={node.y + h - 9} textAnchor="middle"
-            fontFamily="ui-monospace, monospace" fontSize={19} fontWeight={700}
+            fontFamily="var(--font-mono)" fontSize={19} fontWeight={700}
             fill={on ? C.on : C.faint} style={{ pointerEvents: "none", userSelect: "none" }}>
             {on ? "1" : "0"}
           </text>
@@ -59,14 +59,14 @@ export default function IONode({ node, value, ports, onBodyDown, onPort, onPortU
             style={{ filter: on ? `drop-shadow(0 0 7px ${C.glowOnStrong})` : "none", pointerEvents: "none" }} />
           {/* Colour-blind-safe glyph inside the indicator */}
           <text x={node.x + w / 2} y={node.y + h / 2}
-            textAnchor="middle" fontFamily="ui-monospace, monospace"
+            textAnchor="middle" fontFamily="var(--font-mono)"
             fontSize={11} fontWeight={700}
             fill={on ? C.onAccentInk : C.faint}
             style={{ pointerEvents: "none", userSelect: "none" }}>
             {sigGlyph(value)}
           </text>
           <text x={node.x + w / 2} y={node.y + h - 6} textAnchor="middle"
-            fontFamily="ui-monospace, monospace" fontSize={9} letterSpacing={1}
+            fontFamily="var(--font-mono)" fontSize={9} letterSpacing={1}
             fill={C.muted} style={{ pointerEvents: "none", userSelect: "none" }}>OUT Q</text>
           <g
             onPointerDown={(e) => { e.stopPropagation(); onPort(e, node, "in", 0); }}

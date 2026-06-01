@@ -28,7 +28,7 @@ export default function TruthTable({ def, results, currentRow }: TruthTableProps
     <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, padding: 15 }}>
       <h3 style={{ margin: "0 0 9px", fontSize: 14, color: C.text }}>Truth Table</h3>
       <div style={{ maxHeight: 270, overflowY: "auto" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "ui-monospace, monospace", fontSize: 13 }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "var(--font-mono)", fontSize: 13 }}>
           <thead>
             <tr style={{ color: C.faint }}>
               {def.inputs.map((l) => (

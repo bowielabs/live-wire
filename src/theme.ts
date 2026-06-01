@@ -79,7 +79,7 @@ export const btn = (extra: CSSProperties = {}): CSSProperties => ({
   borderRadius: 8,
   padding: "7px 12px",
   fontSize: 12.5,
-  fontFamily: "ui-monospace, Menlo, monospace",
+  fontFamily: "var(--font-mono)",
   cursor: "pointer",
   ...extra,
 });

@@ -57,8 +57,8 @@ export default function ShareCircuit({ levelIdx, nodes, wires, inputValues }: Sh
         >
           🔗 Share this circuit
         </button>
-        {state === "copied" && <span style={{ color: C.on, fontFamily: "ui-monospace, monospace" }}>Link copied ✓</span>}
-        {state === "shown" && <span style={{ color: C.warn, fontFamily: "ui-monospace, monospace" }}>Copy this link:</span>}
+        {state === "copied" && <span style={{ color: C.on, fontFamily: "var(--font-mono)" }}>Link copied ✓</span>}
+        {state === "shown" && <span style={{ color: C.warn, fontFamily: "var(--font-mono)" }}>Copy this link:</span>}
       </div>
       {state === "shown" && fallbackUrl && (
         <input
@@ -74,7 +74,7 @@ export default function ShareCircuit({ levelIdx, nodes, wires, inputValues }: Sh
             borderRadius: 6,
             padding: "6px 8px",
             fontSize: 11.5,
-            fontFamily: "ui-monospace, monospace",
+            fontFamily: "var(--font-mono)",
             boxSizing: "border-box",
           }}
         />

@@ -144,7 +144,7 @@ export default function CircuitCanvas({ circuit }: CircuitCanvasProps) {
           );
         })}
 
-        <text x={14} y={VBH - 12} fontFamily="ui-monospace, monospace" fontSize={10.5} fill={C.faint}>
+        <text x={14} y={VBH - 12} fontFamily="var(--font-mono)" fontSize={10.5} fill={C.faint}>
           drag from a port to wire (or click then click) · drag gates from the palette · click a wire to cut it · click inputs to toggle
         </text>
       </svg>

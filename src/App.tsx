@@ -181,7 +181,7 @@ export default function App() {
         minHeight: "100vh",
         background: `radial-gradient(900px 500px at 18% -10%, ${C.appGradStart} 0%, ${C.bg} 60%)`,
         color: C.text,
-        fontFamily: "'Georgia', 'Times New Roman', serif",
+        fontFamily: "var(--font-body)",
         padding: "12px 12px 24px",
         boxSizing: "border-box",
       }}

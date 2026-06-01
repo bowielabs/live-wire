@@ -74,7 +74,7 @@ export default function Tutorial({ step, onNext, onSkip }: TutorialProps) {
       }}
     >
       {copy.step && (
-        <div style={{ color: C.accent, fontFamily: "ui-monospace, monospace", fontSize: 10.5, letterSpacing: 1, marginBottom: 4 }}>
+        <div style={{ color: C.accent, fontFamily: "var(--font-mono)", fontSize: 10.5, letterSpacing: 1, marginBottom: 4 }}>
           {copy.step.toUpperCase()}
         </div>
       )}
@@ -110,7 +110,7 @@ export default function Tutorial({ step, onNext, onSkip }: TutorialProps) {
             color: C.faint,
             cursor: "pointer",
             fontSize: 12,
-            fontFamily: "ui-monospace, monospace",
+            fontFamily: "var(--font-mono)",
             textDecoration: "underline",
             padding: 0,
           }}
@@ -126,7 +126,7 @@ export default function Tutorial({ step, onNext, onSkip }: TutorialProps) {
             {copy.nextLabel}
           </button>
         ) : (
-          <span style={{ color: C.faint, fontFamily: "ui-monospace, monospace", fontSize: 11 }}>
+          <span style={{ color: C.faint, fontFamily: "var(--font-mono)", fontSize: 11 }}>
             advances automatically
           </span>
         )}

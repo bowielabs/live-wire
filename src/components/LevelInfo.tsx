@@ -12,24 +12,24 @@ export default function LevelInfo({ def, levelIdx }: LevelInfoProps) {
   return (
     <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, padding: 15 }}>
       {world ? (
-        <div style={{ fontFamily: "ui-monospace, monospace", fontSize: 10.5, letterSpacing: 1, color: world.color, marginBottom: 4 }}>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 10.5, letterSpacing: 1, color: world.color, marginBottom: 4 }}>
           WORLD {world.id} · {world.name.toUpperCase()}
         </div>
       ) : (
-        <div style={{ fontFamily: "ui-monospace, monospace", fontSize: 10.5, letterSpacing: 1, color: C.faint, marginBottom: 4 }}>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 10.5, letterSpacing: 1, color: C.faint, marginBottom: 4 }}>
           FREE PLAY
         </div>
       )}
       <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
         <h2 style={{ margin: 0, fontSize: 19 }}>{def.name}</h2>
-        <span style={{ color: C.accent, fontFamily: "ui-monospace, monospace", fontSize: 12 }}>
+        <span style={{ color: C.accent, fontFamily: "var(--font-mono)", fontSize: 12 }}>
           {typeof levelIdx === "number" ? `LV ${levelIdx + 1}/100` : "SANDBOX"}
         </span>
       </div>
       <div
         style={{
           marginTop: 7,
-          fontFamily: "ui-monospace, monospace",
+          fontFamily: "var(--font-mono)",
           fontSize: 13,
           color: C.accent,
           background: C.panel2,
@@ -55,7 +55,7 @@ export default function LevelInfo({ def, levelIdx }: LevelInfoProps) {
             lineHeight: 1.55,
           }}
         >
-          <span style={{ fontFamily: "ui-monospace, monospace", fontSize: 10.5, letterSpacing: 1, color: C.irlLabel }}>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: 10.5, letterSpacing: 1, color: C.irlLabel }}>
             ⚡ IN THE REAL WORLD
           </span>
           <div style={{ marginTop: 3 }}>{def.irl}</div>

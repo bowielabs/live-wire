@@ -52,12 +52,12 @@ export default function GateNode({
       <rect x={node.x} y={node.y} width={w} height={7} rx={3.5} fill={fam} opacity={0.85}
         style={{ pointerEvents: "none" }} />
       <text x={node.x + w / 2} y={node.y + h * 0.56} textAnchor="middle"
-        fontFamily="ui-monospace, Menlo, monospace" fontSize={20} fontWeight={700}
+        fontFamily="var(--font-mono)" fontSize={20} fontWeight={700}
         fill={fam} style={{ pointerEvents: "none", userSelect: "none" }}>
         {def.sym}
       </text>
       <text x={node.x + w / 2} y={node.y + h - 7} textAnchor="middle"
-        fontFamily="ui-monospace, Menlo, monospace" fontSize={9} letterSpacing={1}
+        fontFamily="var(--font-mono)" fontSize={9} letterSpacing={1}
         fill={C.muted} style={{ pointerEvents: "none", userSelect: "none" }}>
         {def.name}
       </text>

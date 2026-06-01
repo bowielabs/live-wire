@@ -25,7 +25,7 @@ export default function Toolbar({ palette, onAddGate, onClear, onReset }: Toolba
         marginBottom: 10,
       }}
     >
-      <span style={{ color: C.faint, fontSize: 11, fontFamily: "ui-monospace, monospace", marginRight: 2 }}>
+      <span style={{ color: C.faint, fontSize: 11, fontFamily: "var(--font-mono)", marginRight: 2 }}>
         GATES
       </span>
       {palette.map((t) => {

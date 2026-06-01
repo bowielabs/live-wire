@@ -16,14 +16,31 @@ const iconBtn = {
   color: C.text,
   border: `1px solid ${C.border}`,
   borderRadius: 8,
-  width: 36,
-  height: 36,
+  width: 34,
+  height: 34,
   cursor: "pointer",
-  fontSize: 16,
+  fontSize: 15,
   lineHeight: "30px",
   padding: 0,
   fontFamily: "inherit",
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
 } as const;
+
+/** A compact derivative of the favicon for in-app use — same gate silhouette,
+    no gradient background so it sits cleanly on the AppBar panel. */
+function GateMark() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true">
+      <rect x="9" y="9" width="14" height="14" rx="2.5" fill={C.accent} />
+      <rect x="9" y="9" width="14" height="2.5" fill="rgba(12,19,34,0.45)" />
+      <circle cx="5" cy="12" r="1.7" fill={C.on} />
+      <circle cx="5" cy="20" r="1.7" fill={C.on} />
+      <circle cx="27" cy="16" r="1.7" fill={C.on} />
+    </svg>
+  );
+}
 
 export default function AppBar({
   levelLabel,
@@ -48,35 +65,44 @@ export default function AppBar({
         marginBottom: 10,
       }}
     >
-      <button onClick={onOpenLevels} aria-label="Open levels" title="Levels" style={iconBtn}>
+      <button
+        onClick={onOpenLevels}
+        aria-label="Open levels"
+        title="Levels"
+        style={iconBtn}
+      >
         ☰
       </button>
-      <h1
-        className="gw-app-title"
-        style={{
-          margin: 0,
-          fontSize: 19,
-          fontWeight: 700,
-          background: `linear-gradient(90deg, ${C.accent}, ${C.h1GradEnd})`,
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-          letterSpacing: 0.4,
-        }}
-      >
-        Live Wire
-      </h1>
+
+      <div style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+        <GateMark />
+        <h1
+          style={{
+            margin: 0,
+            fontSize: 18,
+            fontWeight: 600,
+            color: C.text,
+            letterSpacing: "-0.01em",
+            lineHeight: 1,
+          }}
+        >
+          Live Wire
+        </h1>
+      </div>
+
       <button
         onClick={onOpenInfo}
         title="Level info"
         style={{
-          background: C.panel2,
-          color: C.text,
+          background: "transparent",
+          color: C.muted,
           border: `1px solid ${C.border}`,
-          borderRadius: 8,
-          padding: "6px 10px",
+          borderRadius: 999,
+          padding: "5px 10px",
           cursor: "pointer",
-          fontSize: 12.5,
-          fontFamily: "ui-monospace, Menlo, monospace",
+          fontSize: 11.5,
+          fontFamily: "var(--font-mono)",
+          letterSpacing: "0.02em",
           maxWidth: "60vw",
           overflow: "hidden",
           textOverflow: "ellipsis",
@@ -85,7 +111,9 @@ export default function AppBar({
       >
         {levelLabel}
       </button>
+
       <div style={{ flex: 1 }} />
+
       <button
         onClick={onToggleMute}
         aria-label={muted ? "Unmute sound effects" : "Mute sound effects"}

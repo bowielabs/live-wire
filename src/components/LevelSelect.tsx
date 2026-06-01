@@ -20,7 +20,7 @@ export default function LevelSelect({ solved, levelIdx, activeRef, onSelect, onR
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 9 }}>
         <h3 style={{ margin: 0, fontSize: 14 }}>
           Levels{" "}
-          <span style={{ color: C.faint, fontFamily: "ui-monospace, monospace", fontSize: 11 }}>
+          <span style={{ color: C.faint, fontFamily: "var(--font-mono)", fontSize: 11 }}>
             {Object.keys(solved).length}/{LEVELS.length} solved
           </span>
         </h3>
@@ -33,7 +33,7 @@ export default function LevelSelect({ solved, levelIdx, activeRef, onSelect, onR
               color: C.faint,
               fontSize: 11,
               cursor: "pointer",
-              fontFamily: "ui-monospace, monospace",
+              fontFamily: "var(--font-mono)",
               textDecoration: "underline",
             }}
           >
@@ -62,7 +62,7 @@ export default function LevelSelect({ solved, levelIdx, activeRef, onSelect, onR
                 <span style={{ color: world.color, fontWeight: 700, fontSize: 12.5 }}>
                   {world.id}. {world.name}
                 </span>
-                <span style={{ color: C.faint, fontSize: 10.5, fontFamily: "ui-monospace, monospace" }}>{done}/10</span>
+                <span style={{ color: C.faint, fontSize: 10.5, fontFamily: "var(--font-mono)" }}>{done}/10</span>
                 <span style={{ flex: 1 }} />
                 <span style={{ color: C.faint, fontSize: 10, fontStyle: "italic" }}>{world.tag}</span>
               </div>
@@ -94,7 +94,7 @@ export default function LevelSelect({ solved, levelIdx, activeRef, onSelect, onR
                         opacity: open ? 1 : 0.55,
                       }}
                     >
-                      <span style={{ fontFamily: "ui-monospace, monospace", color: world.color, fontSize: 10.5, width: 22 }}>
+                      <span style={{ fontFamily: "var(--font-mono)", color: world.color, fontSize: 10.5, width: 22 }}>
                         {String(i + 1).padStart(3, "0")}
                       </span>
                       <span style={{ flex: 1 }}>{open ? lvl.name : "🔒 Locked"}</span>

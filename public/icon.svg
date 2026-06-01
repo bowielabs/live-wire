@@ -19,8 +19,6 @@
     <path d="M 320 256 L 420 256"/>
   </g>
 
-  <!-- gate body shadow -->
-  <rect x="194" y="174" width="140" height="172" rx="18" fill="#0c1322" opacity="0.22"/>
   <!-- gate body -->
   <rect x="190" y="170" width="140" height="172" rx="18" fill="#0c1322"/>
   <!-- family-colour stripe at the top, clipped to the body's rounded corners -->
