@@ -11,6 +11,15 @@ interface Drag {
   dy: number;
 }
 
+/** Squared distance threshold (px²) for distinguishing a click from a drag. */
+const DRAG_THRESHOLD_SQ = 64; // 8px
+
+/** Anything with clientX/clientY coordinates — pointer, drag, mouse. */
+interface Coords {
+  clientX: number;
+  clientY: number;
+}
+
 /**
  * Owns the editable board state (nodes, wires, input values) and all the
  * pointer interactions that mutate it. `notify` surfaces transient messages
@@ -27,6 +36,10 @@ export function useCircuit(initialDef: LevelDef, notify: (m: string) => void) {
   const [cursor, setCursor] = useState({ x: 0, y: 0 });
   const gateSeq = useRef(0);
   const svgRef = useRef<SVGSVGElement | null>(null);
+  /** Where (in svg coords) the user last started a port press — used to tell
+      a click-to-wire from a drag-to-wire, and to cancel pending after a real
+      drag that didn't land on another port. */
+  const dragWireStartRef = useRef<{ x: number; y: number } | null>(null);
 
   /* ---- live simulation ---- */
   const memo = useMemo(() => simulate(nodes, wires, inputValues), [nodes, wires, inputValues]);
@@ -41,8 +54,8 @@ export function useCircuit(initialDef: LevelDef, notify: (m: string) => void) {
 
   const gateCount = nodes.filter((n) => n.type !== "INPUT" && n.type !== "OUTPUT").length;
 
-  /* ---- svg coordinate helper ---- */
-  const toSvg = useCallback((e: PointerEvent) => {
+  /* ---- svg coordinate helper (works for pointer, drag, or mouse events) ---- */
+  const toSvg = useCallback((e: Coords) => {
     const r = svgRef.current!.getBoundingClientRect();
     return {
       x: ((e.clientX - r.left) / r.width) * VBW,
@@ -50,12 +63,37 @@ export function useCircuit(initialDef: LevelDef, notify: (m: string) => void) {
     };
   }, []);
 
+  /** Shared wire-creation step used by both click-to-wire and drag-to-wire. */
+  const connectPorts = useCallback(
+    (
+      src: { node: string },
+      dst: { node: string; port: number },
+      curWires: Wire[]
+    ): boolean => {
+      if (src.node === dst.node) return false; // no self-loops
+      const next = curWires.filter((w) => !(w.to.node === dst.node && w.to.port === dst.port));
+      next.push({
+        id: "w" + Math.random().toString(36).slice(2),
+        from: { node: src.node },
+        to: { node: dst.node, port: dst.port },
+      });
+      if (makesCycle(next)) {
+        notify("That wire would create a feedback loop — not allowed in a combinational circuit.");
+        return false;
+      }
+      setWires(next);
+      return true;
+    },
+    [notify]
+  );
+
   /* ---- node interactions ---- */
   const onBodyDown = (e: PointerEvent, node: NodeData) => {
     e.stopPropagation();
     const p = toSvg(e);
     setDrag({ id: node.id, dx: p.x - node.x, dy: p.y - node.y });
     setPending(null);
+    dragWireStartRef.current = null;
   };
 
   const onPointerMove = (e: PointerEvent) => {
@@ -79,40 +117,65 @@ export function useCircuit(initialDef: LevelDef, notify: (m: string) => void) {
 
   const endDrag = () => setDrag(null);
 
+  /** PointerDown on a port — starts (or completes) a wire via the click flow. */
   const onPort = (e: PointerEvent, node: NodeData, kind: "in" | "out", port: number) => {
+    const p = toSvg(e);
     if (!pending) {
       setPending({ node: node.id, kind, port });
-      setCursor(toSvg(e));
+      setCursor(p);
+      dragWireStartRef.current = p;
       return;
     }
     if (pending.node === node.id) {
       setPending(null);
+      dragWireStartRef.current = null;
       return;
     }
-    let src: { node: string };
-    let dst: { node: string; port: number };
     if (pending.kind === "out" && kind === "in") {
-      src = pending;
-      dst = { node: node.id, port };
+      connectPorts(pending, { node: node.id, port }, wires);
     } else if (pending.kind === "in" && kind === "out") {
-      src = { node: node.id };
-      dst = pending;
+      connectPorts({ node: node.id }, pending, wires);
     } else {
+      // same-kind on a different node: re-anchor the pending wire here
       setPending({ node: node.id, kind, port });
+      dragWireStartRef.current = p;
       return;
-    }
-    const next = wires.filter((w) => !(w.to.node === dst.node && w.to.port === dst.port));
-    next.push({
-      id: "w" + Math.random().toString(36).slice(2),
-      from: { node: src.node },
-      to: { node: dst.node, port: dst.port },
-    });
-    if (makesCycle(next)) {
-      notify("That wire would create a feedback loop — not allowed in a combinational circuit.");
-    } else {
-      setWires(next);
     }
     setPending(null);
+    dragWireStartRef.current = null;
+  };
+
+  /** PointerUp on a port — completes a wire via the drag flow. Silent for the
+      same node or mismatched-kind pairings so the click flow keeps working. */
+  const onPortUp = (e: PointerEvent, node: NodeData, kind: "in" | "out", port: number) => {
+    if (!pending) return;
+    if (pending.node === node.id) return;
+    let connected = false;
+    if (pending.kind === "out" && kind === "in") {
+      connected = connectPorts(pending, { node: node.id, port }, wires);
+    } else if (pending.kind === "in" && kind === "out") {
+      connected = connectPorts({ node: node.id }, pending, wires);
+    } else {
+      return; // mismatched kinds; let click flow handle it on the next press
+    }
+    if (connected) {
+      setPending(null);
+      dragWireStartRef.current = null;
+      e.stopPropagation();
+    }
+  };
+
+  /** PointerUp on the SVG background — cancel a pending wire if the user
+      clearly dragged (otherwise leave it set so the click flow can continue). */
+  const maybeCancelPendingWire = (e: PointerEvent) => {
+    if (!pending || !dragWireStartRef.current) return;
+    const p = toSvg(e);
+    const dx = p.x - dragWireStartRef.current.x;
+    const dy = p.y - dragWireStartRef.current.y;
+    if (dx * dx + dy * dy > DRAG_THRESHOLD_SQ) {
+      setPending(null);
+      dragWireStartRef.current = null;
+    }
   };
 
   const deleteNode = (id: string) => {
@@ -123,10 +186,20 @@ export function useCircuit(initialDef: LevelDef, notify: (m: string) => void) {
   const deleteWire = (id: string) => setWires((ws) => ws.filter((w) => w.id !== id));
   const toggleInput = (id: string) => setInputValues((v) => ({ ...v, [id]: !v[id] }));
 
+  /** Click-to-place: add a gate at the conventional spawn coords. */
   const addGate = (type: GateType) => {
     const k = gateSeq.current++;
     const id = "g" + k;
     setNodes((ns) => [...ns, { id, type, x: 312 + (k % 3) * 40, y: 70 + (k % 4) * 88 }]);
+  };
+
+  /** Drag-from-palette: add a gate at the given svg coordinates (clamped). */
+  const addGateAt = (type: GateType, x: number, y: number) => {
+    gateSeq.current++;
+    const id = "g" + gateSeq.current;
+    const cx = Math.max(8, Math.min(VBW - 100, x - 38));
+    const cy = Math.max(6, Math.min(VBH - 56, y - 25));
+    setNodes((ns) => [...ns, { id, type, x: cx, y: cy }]);
   };
 
   /** Reset the board to just the inputs + output (keeps the current level). */
@@ -134,6 +207,7 @@ export function useCircuit(initialDef: LevelDef, notify: (m: string) => void) {
     setNodes((ns) => ns.filter((n) => n.type === "INPUT" || n.type === "OUTPUT"));
     setWires([]);
     setPending(null);
+    dragWireStartRef.current = null;
   };
 
   /** Rebuild a fresh board for a (possibly different) level definition. */
@@ -144,6 +218,7 @@ export function useCircuit(initialDef: LevelDef, notify: (m: string) => void) {
     setWires([]);
     setInputValues(b.inputValues);
     setPending(null);
+    dragWireStartRef.current = null;
   }, []);
 
   /* ---- pending wire preview source ---- */
@@ -166,15 +241,19 @@ export function useCircuit(initialDef: LevelDef, notify: (m: string) => void) {
     inWireMap,
     gateCount,
     pendPoint,
+    toSvg,
     setPending,
     onBodyDown,
     onPointerMove,
     endDrag,
     onPort,
+    onPortUp,
+    maybeCancelPendingWire,
     deleteNode,
     deleteWire,
     toggleInput,
     addGate,
+    addGateAt,
     clearBoard,
     loadBoard,
   };

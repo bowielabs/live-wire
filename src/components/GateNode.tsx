@@ -10,6 +10,7 @@ export interface GateNodeProps {
   ports: Ports;
   onBodyDown: (e: PointerEvent, node: NodeData) => void;
   onPort: (e: PointerEvent, node: NodeData, kind: "in" | "out", port: number) => void;
+  onPortUp: (e: PointerEvent, node: NodeData, kind: "in" | "out", port: number) => void;
   onDelete: (id: string) => void;
   pending: Pending | null;
   liveInputs: Record<number, Signal>;
@@ -21,6 +22,7 @@ export default function GateNode({
   ports,
   onBodyDown,
   onPort,
+  onPortUp,
   onDelete,
   pending,
   liveInputs,
@@ -70,7 +72,9 @@ export default function GateNode({
         const iv = liveInputs[p.idx];
         const sel = pending && pending.node === node.id && pending.kind === "in" && pending.port === p.idx;
         return (
-          <g key={"i" + p.idx} onPointerDown={(e) => { e.stopPropagation(); onPort(e, node, "in", p.idx); }}
+          <g key={"i" + p.idx}
+            onPointerDown={(e) => { e.stopPropagation(); onPort(e, node, "in", p.idx); }}
+            onPointerUp={(e) => onPortUp(e, node, "in", p.idx)}
             style={{ cursor: "crosshair" }}>
             <circle cx={p.x} cy={p.y} r={10} fill="transparent" />
             <circle cx={p.x} cy={p.y} r={5.2} fill={sigColor(iv)}
@@ -80,7 +84,9 @@ export default function GateNode({
       })}
       {/* output port */}
       {ports.output && (
-        <g onPointerDown={(e) => { e.stopPropagation(); onPort(e, node, "out", 0); }}
+        <g
+          onPointerDown={(e) => { e.stopPropagation(); onPort(e, node, "out", 0); }}
+          onPointerUp={(e) => onPortUp(e, node, "out", 0)}
           style={{ cursor: "crosshair" }}>
           <circle cx={ports.output.x} cy={ports.output.y} r={10} fill="transparent" />
           <circle cx={ports.output.x} cy={ports.output.y} r={5.2} fill={sigColor(value)}

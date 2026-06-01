@@ -9,6 +9,7 @@ export interface IONodeProps {
   ports: Ports;
   onBodyDown: (e: PointerEvent, node: NodeData) => void;
   onPort: (e: PointerEvent, node: NodeData, kind: "in" | "out", port: number) => void;
+  onPortUp: (e: PointerEvent, node: NodeData, kind: "in" | "out", port: number) => void;
   onToggle: (id: string) => void;
   pending: Pending | null;
 }
@@ -16,7 +17,7 @@ export interface IONodeProps {
 /** Single-character glyph for a signal — colorblind-safe cue alongside colour. */
 const sigGlyph = (v: Signal): string => (v === true ? "1" : v === false ? "0" : "—");
 
-export default function IONode({ node, value, ports, onBodyDown, onPort, onToggle, pending }: IONodeProps) {
+export default function IONode({ node, value, ports, onBodyDown, onPort, onPortUp, onToggle, pending }: IONodeProps) {
   const { w, h } = nodeBox(node.type);
   const isIn = node.type === "INPUT";
   const on = value === true;
@@ -37,7 +38,10 @@ export default function IONode({ node, value, ports, onBodyDown, onPort, onToggl
             fill={on ? C.on : C.faint} style={{ pointerEvents: "none", userSelect: "none" }}>
             {on ? "1" : "0"}
           </text>
-          <g onPointerDown={(e) => { e.stopPropagation(); onPort(e, node, "out", 0); }} style={{ cursor: "crosshair" }}>
+          <g
+            onPointerDown={(e) => { e.stopPropagation(); onPort(e, node, "out", 0); }}
+            onPointerUp={(e) => onPortUp(e, node, "out", 0)}
+            style={{ cursor: "crosshair" }}>
             <circle cx={ports.output!.x} cy={ports.output!.y} r={10} fill="transparent" />
             <circle cx={ports.output!.x} cy={ports.output!.y} r={5.4} fill={sigColor(value)}
               stroke={pending && pending.node === node.id ? C.accent : C.portRing}
@@ -64,7 +68,10 @@ export default function IONode({ node, value, ports, onBodyDown, onPort, onToggl
           <text x={node.x + w / 2} y={node.y + h - 6} textAnchor="middle"
             fontFamily="ui-monospace, monospace" fontSize={9} letterSpacing={1}
             fill={C.muted} style={{ pointerEvents: "none", userSelect: "none" }}>OUT Q</text>
-          <g onPointerDown={(e) => { e.stopPropagation(); onPort(e, node, "in", 0); }} style={{ cursor: "crosshair" }}>
+          <g
+            onPointerDown={(e) => { e.stopPropagation(); onPort(e, node, "in", 0); }}
+            onPointerUp={(e) => onPortUp(e, node, "in", 0)}
+            style={{ cursor: "crosshair" }}>
             <circle cx={ports.inputs[0].x} cy={ports.inputs[0].y} r={10} fill="transparent" />
             <circle cx={ports.inputs[0].x} cy={ports.inputs[0].y} r={5.4} fill={sigColor(value)}
               stroke={pending && pending.node === node.id ? C.accent : C.portRing}

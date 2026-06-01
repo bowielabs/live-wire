@@ -1,6 +1,7 @@
 import type { GateType } from "../types";
 import { GATES } from "../engine/gates";
 import { btn, C } from "../theme";
+import { GATE_DRAG_KEY } from "./CircuitCanvas";
 
 export interface ToolbarProps {
   palette: GateType[];
@@ -33,7 +34,13 @@ export default function Toolbar({ palette, onAddGate, onClear, onReset }: Toolba
           <button
             key={t}
             onClick={() => onAddGate(t)}
-            style={btn({ borderColor: g.fam, display: "flex", alignItems: "center", gap: 6 })}
+            draggable
+            onDragStart={(e) => {
+              e.dataTransfer.effectAllowed = "copy";
+              e.dataTransfer.setData(GATE_DRAG_KEY, t);
+            }}
+            title={`${g.name} — click to place, or drag onto the canvas`}
+            style={btn({ borderColor: g.fam, display: "flex", alignItems: "center", gap: 6, cursor: "grab" })}
           >
             <span style={{ color: g.fam, fontWeight: 700, fontSize: 14 }}>{g.sym}</span>
             <span>{g.name}</span>
