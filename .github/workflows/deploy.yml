@@ -20,6 +20,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          # Don't leave the workflow token in .git/config for later steps.
+          persist-credentials: false
 
       - uses: actions/setup-node@v6
         with:
@@ -35,7 +38,12 @@ jobs:
       - name: Build
         run: npm run build
 
+      # --- Deploy steps below run ONLY on pushes to main / manual dispatch. ---
+      # Pull requests (including from forks) stop after build + test, so the
+      # Cloudflare credentials are never referenced in untrusted-PR runs.
+
       - name: Ensure Cloudflare Pages project exists
+        if: github.event_name != 'pull_request'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -45,13 +53,13 @@ jobs:
         run: npx --yes wrangler pages project create live-wire --production-branch=main || true
 
       - name: Deploy to Cloudflare Pages
+        if: github.event_name != 'pull_request'
         uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           # Project name and output dir come from wrangler.toml.
-          # --branch marks the production deployment when on main; other
-          # branches/PRs become preview deployments.
+          # Deploy only happens on main, so --branch is always the prod branch.
           # --commit-dirty=true silences wrangler's warning about dist/ being
           # untracked (it's gitignored on purpose).
-          command: pages deploy --branch=${{ github.head_ref || github.ref_name }} --commit-dirty=true
+          command: pages deploy --branch=${{ github.ref_name }} --commit-dirty=true
