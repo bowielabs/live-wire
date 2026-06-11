@@ -2,6 +2,7 @@ import type { GateType } from "../types";
 import { GATES } from "../engine/gates";
 import { btn, C } from "../theme";
 import { GATE_DRAG_KEY } from "./CircuitCanvas";
+import GateGlyph from "./GateGlyph";
 
 export interface ToolbarProps {
   palette: GateType[];
@@ -42,7 +43,7 @@ export default function Toolbar({ palette, onAddGate, onClear, onReset }: Toolba
             title={`${g.name} — click to place, or drag onto the canvas`}
             style={btn({ borderColor: g.fam, display: "flex", alignItems: "center", gap: 6, cursor: "grab" })}
           >
-            <span style={{ color: g.fam, fontWeight: 700, fontSize: 14 }}>{g.sym}</span>
+            <GateGlyph type={t} color={g.fam!} />
             <span>{g.name}</span>
           </button>
         );

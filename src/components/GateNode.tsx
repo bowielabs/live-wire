@@ -2,6 +2,7 @@ import type { PointerEvent } from "react";
 import type { NodeData, Pending, Ports, Signal } from "../types";
 import { GATES } from "../engine/gates";
 import { nodeBox } from "../engine/geometry";
+import { gateGeom } from "../engine/gateShapes";
 import { C, sigColor } from "../theme";
 
 export interface GateNodeProps {
@@ -31,34 +32,43 @@ export default function GateNode({
   const { w, h } = nodeBox(node.type);
   const fam = def.fam!;
   const lit = value === true;
+  const geom = gateGeom(node.type, node.x, node.y, w, h);
+  const stroke = lit ? C.on : fam;
+  const sw = lit ? 2.2 : 1.5;
 
   return (
     <g className="gw-pop-in">
-      {/* output stub + negation bubble */}
+      {/* input leads — run from each port out to the silhouette; light up
+          with their own signal so the gate reads like a textbook diagram */}
+      {ports.inputs.map((p) =>
+        geom.leadX > p.x ? (
+          <line key={"l" + p.idx} x1={p.x} y1={p.y} x2={geom.leadX} y2={p.y}
+            stroke={sigColor(liveInputs[p.idx])} strokeWidth={2.4}
+            style={{ pointerEvents: "none" }} />
+        ) : null,
+      )}
+      {/* output stub */}
       <line x1={node.x + w} y1={node.y + h / 2} x2={node.x + w + 11} y2={node.y + h / 2}
         stroke={sigColor(value)} strokeWidth={2.4} />
+      {/* XOR / XNOR extra back arc */}
+      {geom.back && (
+        <path d={geom.back} fill="none" stroke={stroke} strokeWidth={sw}
+          strokeLinecap="round" style={{ pointerEvents: "none" }} />
+      )}
+      {/* body silhouette */}
+      <path d={geom.body} fill={C.gateBody} stroke={stroke} strokeWidth={sw}
+        strokeLinejoin="round"
+        onPointerDown={(e) => onBodyDown(e, node)}
+        style={{ cursor: "grab", filter: lit ? `drop-shadow(0 0 5px ${C.glowOn})` : "none" }} />
+      {/* negation bubble (NOT / NAND / NOR / XNOR) */}
       {def.neg && (
         <circle cx={node.x + w + 4} cy={node.y + h / 2} r={5}
-          fill={C.canvas} stroke={fam} strokeWidth={1.8} />
+          fill={C.canvas} stroke={stroke} strokeWidth={sw} />
       )}
-      {/* body */}
-      <rect
-        x={node.x} y={node.y} width={w} height={h} rx={9}
-        fill={C.gateBody} stroke={lit ? C.on : fam}
-        strokeWidth={lit ? 2.2 : 1.5}
-        onPointerDown={(e) => onBodyDown(e, node)}
-        style={{ cursor: "grab", filter: lit ? `drop-shadow(0 0 5px ${C.glowOn})` : "none" }}
-      />
-      <rect x={node.x} y={node.y} width={w} height={7} rx={3.5} fill={fam} opacity={0.85}
-        style={{ pointerEvents: "none" }} />
-      <text x={node.x + w / 2} y={node.y + h * 0.56} textAnchor="middle"
-        fontFamily="var(--font-mono)" fontSize={20} fontWeight={700}
-        fill={fam} style={{ pointerEvents: "none", userSelect: "none" }}>
-        {def.sym}
-      </text>
-      <text x={node.x + w / 2} y={node.y + h - 7} textAnchor="middle"
-        fontFamily="var(--font-mono)" fontSize={9} letterSpacing={1}
-        fill={C.muted} style={{ pointerEvents: "none", userSelect: "none" }}>
+      {/* name label — subtle, the shape carries the identity */}
+      <text x={node.x + w * 0.44} y={node.y + h * 0.5 + 3.2} textAnchor="middle"
+        fontFamily="var(--font-mono)" fontSize={8.5} fontWeight={600} letterSpacing={0.5}
+        fill={C.muted} opacity={0.8} style={{ pointerEvents: "none", userSelect: "none" }}>
         {def.name}
       </text>
       {/* delete */}
