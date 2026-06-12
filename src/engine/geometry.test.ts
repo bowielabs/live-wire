@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { NodeData } from "../types";
-import { nodeBox, portsOf } from "./geometry";
+import { fitViewBox, nodeBox, portsOf, VBH, VBW } from "./geometry";
 import { buildBoard } from "./board";
 import { LEVELS } from "../data/levels";
 
@@ -32,6 +32,44 @@ describe("portsOf", () => {
 
   it("gate bodies are larger than IO nodes", () => {
     expect(nodeBox("AND").w).toBeGreaterThan(nodeBox("INPUT").w);
+  });
+});
+
+describe("fitViewBox", () => {
+  const aspect = VBW / VBH;
+
+  it("keeps the board's aspect ratio", () => {
+    const vb = fitViewBox(buildBoard(LEVELS[0]).nodes);
+    expect(vb.w / vb.h).toBeCloseTo(aspect, 3);
+  });
+
+  it("zooms in on a sparse early level (frame well under the full board)", () => {
+    const vb = fitViewBox(buildBoard(LEVELS[0]).nodes);
+    expect(vb.w).toBeLessThan(VBW * 0.75);
+    expect(vb.w).toBeGreaterThanOrEqual(540 - 1); // honours the min-size zoom cap
+  });
+
+  it("stays within the board bounds", () => {
+    const vb = fitViewBox(buildBoard(LEVELS[0]).nodes);
+    expect(vb.x).toBeGreaterThanOrEqual(0);
+    expect(vb.y).toBeGreaterThanOrEqual(0);
+    expect(vb.x + vb.w).toBeLessThanOrEqual(VBW + 0.5);
+    expect(vb.y + vb.h).toBeLessThanOrEqual(VBH + 0.5);
+  });
+
+  it("expands toward the full board as content spreads out", () => {
+    const spread: NodeData[] = [
+      { id: "in0", type: "INPUT", x: 70, y: 40 },
+      { id: "g0", type: "AND", x: 450, y: 480 },
+      { id: "out", type: "OUTPUT", x: 860, y: 260 },
+    ];
+    const vb = fitViewBox(spread);
+    expect(vb.w).toBe(VBW);
+    expect(vb.h).toBe(VBH);
+  });
+
+  it("falls back to the full board when empty", () => {
+    expect(fitViewBox([])).toEqual({ x: 0, y: 0, w: VBW, h: VBH });
   });
 });
 

@@ -3,7 +3,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import type { GateType, LevelDef, NodeData, Pending, Wire } from "../types";
 import type { ShareV1 } from "../lib/share";
 import { buildBoard } from "../engine/board";
-import { portsOf, VBH, VBW } from "../engine/geometry";
+import { fitViewBox, portsOf, VBH, VBW } from "../engine/geometry";
 import { bodyTargetPoint, nextCyclePort, smartStartPort } from "../engine/attach";
 import { makesCycle, simulate } from "../engine/simulate";
 import { play } from "../lib/sound";
@@ -56,6 +56,12 @@ export function useCircuit(initialDef: LevelDef, notify: (m: string) => void) {
   /** The current body press, if any (see Press). */
   const pressRef = useRef<Press | null>(null);
 
+  /* ---- adaptive viewBox: frame the content, zooming in on sparse levels ---- */
+  const viewBox = useMemo(() => fitViewBox(nodes), [nodes]);
+  /** Live mirror so the (stable) toSvg callback maps against the current frame. */
+  const viewBoxRef = useRef(viewBox);
+  viewBoxRef.current = viewBox;
+
   /* ---- live simulation ---- */
   const memo = useMemo(() => simulate(nodes, wires, inputValues), [nodes, wires, inputValues]);
   const inWireMap = useMemo(() => {
@@ -72,9 +78,10 @@ export function useCircuit(initialDef: LevelDef, notify: (m: string) => void) {
   /* ---- svg coordinate helper (works for pointer, drag, or mouse events) ---- */
   const toSvg = useCallback((e: Coords) => {
     const r = svgRef.current!.getBoundingClientRect();
+    const vb = viewBoxRef.current;
     return {
-      x: ((e.clientX - r.left) / r.width) * VBW,
-      y: ((e.clientY - r.top) / r.height) * VBH,
+      x: vb.x + ((e.clientX - r.left) / r.width) * vb.w,
+      y: vb.y + ((e.clientY - r.top) / r.height) * vb.h,
     };
   }, []);
 
@@ -142,12 +149,18 @@ export function useCircuit(initialDef: LevelDef, notify: (m: string) => void) {
   /** A clean tap on a node body (no drag past the threshold). */
   const tapBody = (node: NodeData) => {
     if (node.type === "INPUT") {
-      // Source a waiting wire from the INPUT's output, else toggle the switch.
+      // Complete a wire that's waiting for a source.
       if (pending && pending.node !== node.id && pending.kind === "in") {
         if (connectPorts({ node: node.id }, pending, wires)) setPending(null);
-      } else {
+        return;
+      }
+      // An unwired input arms its output so you can start a wire from it; once
+      // it's already feeding the circuit, a tap toggles its value for testing.
+      if (outputDriving(node.id)) {
         toggleInput(node.id);
         setPending(null);
+      } else {
+        armPort(node);
       }
       return;
     }
@@ -281,7 +294,7 @@ export function useCircuit(initialDef: LevelDef, notify: (m: string) => void) {
   const addGate = (type: GateType) => {
     const k = gateSeq.current++;
     const id = "g" + k;
-    setNodes((ns) => [...ns, { id, type, x: 312 + (k % 3) * 40, y: 70 + (k % 4) * 88 }]);
+    setNodes((ns) => [...ns, { id, type, x: 250 + (k % 3) * 44, y: 70 + (k % 4) * 84 }]);
     play("gate-place");
   };
 
@@ -370,6 +383,7 @@ export function useCircuit(initialDef: LevelDef, notify: (m: string) => void) {
     pending,
     cursor,
     svgRef,
+    viewBox,
     memo,
     inWireMap,
     gateCount,
