@@ -30,12 +30,12 @@ export default function CircuitCanvas({ circuit }: CircuitCanvasProps) {
     endDrag,
     setPending,
     onBodyDown,
+    onBodyUp,
     onPort,
     onPortUp,
     maybeCancelPendingWire,
     deleteNode,
     deleteWire,
-    toggleInput,
   } = circuit;
 
   const onSvgPointerUp = (e: PointerEvent) => {
@@ -133,19 +133,19 @@ export default function CircuitCanvas({ circuit }: CircuitCanvasProps) {
           if (n.type === "INPUT" || n.type === "OUTPUT")
             return (
               <IONode key={n.id} node={n} value={memo[n.id]} ports={p}
-                onBodyDown={onBodyDown} onPort={onPort} onPortUp={onPortUp}
-                onToggle={toggleInput} pending={pending} />
+                onBodyDown={onBodyDown} onBodyUp={onBodyUp} onPort={onPort} onPortUp={onPortUp}
+                pending={pending} />
             );
           return (
             <GateNode key={n.id} node={n} value={memo[n.id]} ports={p}
-              onBodyDown={onBodyDown} onPort={onPort} onPortUp={onPortUp}
+              onBodyDown={onBodyDown} onBodyUp={onBodyUp} onPort={onPort} onPortUp={onPortUp}
               onDelete={deleteNode}
               pending={pending} liveInputs={liveInputs} />
           );
         })}
 
         <text x={14} y={VBH - 12} fontFamily="var(--font-mono)" fontSize={10.5} fill={C.faint}>
-          drag from a port to wire (or click then click) · drag gates from the palette · click a wire to cut it · click inputs to toggle
+          tap a gate to pick a port (tap again to cycle) · tap another gate to connect · drag a gate to move it · tap a wire to cut · tap inputs to toggle
         </text>
       </svg>
     </div>

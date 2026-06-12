@@ -4,6 +4,7 @@ import type { GateType, LevelDef, NodeData, Pending, Wire } from "../types";
 import type { ShareV1 } from "../lib/share";
 import { buildBoard } from "../engine/board";
 import { portsOf, VBH, VBW } from "../engine/geometry";
+import { bodyTargetPoint, nextCyclePort, smartStartPort } from "../engine/attach";
 import { makesCycle, simulate } from "../engine/simulate";
 import { play } from "../lib/sound";
 
@@ -13,8 +14,18 @@ interface Drag {
   dy: number;
 }
 
-/** Squared distance threshold (px²) for distinguishing a click from a drag. */
+/** Squared distance threshold (px²) for distinguishing a tap from a drag. */
 const DRAG_THRESHOLD_SQ = 64; // 8px
+
+/** In-flight body press. A clean tap (no movement past the threshold) cycles
+    the node's armed wire port; moving past the threshold drags the gate. Kept
+    in a ref so the global pointer handlers always see live values. */
+interface Press {
+  nodeId: string;
+  x0: number;
+  y0: number;
+  moving: boolean;
+}
 
 /** Anything with clientX/clientY coordinates — pointer, drag, mouse. */
 interface Coords {
@@ -42,6 +53,8 @@ export function useCircuit(initialDef: LevelDef, notify: (m: string) => void) {
       a click-to-wire from a drag-to-wire, and to cancel pending after a real
       drag that didn't land on another port. */
   const dragWireStartRef = useRef<{ x: number; y: number } | null>(null);
+  /** The current body press, if any (see Press). */
+  const pressRef = useRef<Press | null>(null);
 
   /* ---- live simulation ---- */
   const memo = useMemo(() => simulate(nodes, wires, inputValues), [nodes, wires, inputValues]);
@@ -90,13 +103,69 @@ export function useCircuit(initialDef: LevelDef, notify: (m: string) => void) {
     [notify]
   );
 
-  /* ---- node interactions ---- */
+  /* ---- node interactions ----
+     A clean tap on a gate arms one of its wire ports, cycling to the next on
+     repeated taps; a tap on a second node completes the wire to its matching
+     port. Dragging a body moves the gate. Tapping an INPUT toggles its value,
+     unless that tap is completing a wire into it. */
+
+  /** Does this node's output already drive at least one wire? */
+  const outputDriving = (id: string) => wires.some((w) => w.from.node === id);
+
+  /** Complete `pending` by landing it on `node`'s matching port, if possible. */
+  const completeOntoBody = (node: NodeData): boolean => {
+    if (!pending || pending.node === node.id) return false;
+    const need = pending.kind === "out" ? "in" : "out";
+    const tp = bodyTargetPoint(node, need, inWireMap);
+    if (!tp) return false;
+    const ok =
+      need === "in"
+        ? connectPorts(pending, { node: node.id, port: tp.port }, wires)
+        : connectPorts({ node: node.id }, pending, wires);
+    if (ok) setPending(null);
+    return ok;
+  };
+
+  /** Arm (or advance to) a port on a freshly tapped node, and anchor the
+      preview there so it isn't a stale rubber-band on touch. */
+  const armPort = (node: NodeData) => {
+    const next =
+      pending && pending.node === node.id
+        ? nextCyclePort(node, { kind: pending.kind, port: pending.port })
+        : smartStartPort(node, inWireMap, outputDriving(node.id));
+    setPending({ node: node.id, kind: next.kind, port: next.port });
+    const ports = portsOf(node);
+    const pt = next.kind === "out" ? ports.output : ports.inputs[next.port];
+    if (pt) setCursor({ x: pt.x, y: pt.y });
+  };
+
+  /** A clean tap on a node body (no drag past the threshold). */
+  const tapBody = (node: NodeData) => {
+    if (node.type === "INPUT") {
+      // Source a waiting wire from the INPUT's output, else toggle the switch.
+      if (pending && pending.node !== node.id && pending.kind === "in") {
+        if (connectPorts({ node: node.id }, pending, wires)) setPending(null);
+      } else {
+        toggleInput(node.id);
+        setPending(null);
+      }
+      return;
+    }
+    if (completeOntoBody(node)) return;
+    armPort(node);
+  };
+
   const onBodyDown = (e: PointerEvent, node: NodeData) => {
     e.stopPropagation();
     const p = toSvg(e);
-    setDrag({ id: node.id, dx: p.x - node.x, dy: p.y - node.y });
-    setPending(null);
-    dragWireStartRef.current = null;
+    pressRef.current = { nodeId: node.id, x0: p.x, y0: p.y, moving: false };
+  };
+
+  /** PointerUp on a body — a tap if we never crossed the drag threshold. */
+  const onBodyUp = (_e: PointerEvent, node: NodeData) => {
+    const pr = pressRef.current;
+    pressRef.current = null;
+    if (pr && pr.nodeId === node.id && !pr.moving) tapBody(node);
   };
 
   const onPointerMove = (e: PointerEvent) => {
@@ -113,12 +182,30 @@ export function useCircuit(initialDef: LevelDef, notify: (m: string) => void) {
             : n
         )
       );
-    } else if (pending) {
-      setCursor(toSvg(e));
+      return;
     }
+    const pr = pressRef.current;
+    if (pr && !pr.moving) {
+      // Crossing the threshold turns the press into a gate move.
+      const p = toSvg(e);
+      const dx = p.x - pr.x0;
+      const dy = p.y - pr.y0;
+      if (dx * dx + dy * dy > DRAG_THRESHOLD_SQ) {
+        const n = nodes.find((x) => x.id === pr.nodeId);
+        if (n) {
+          pr.moving = true;
+          setDrag({ id: pr.nodeId, dx: pr.x0 - n.x, dy: pr.y0 - n.y });
+        }
+      }
+      return;
+    }
+    if (pending) setCursor(toSvg(e));
   };
 
-  const endDrag = () => setDrag(null);
+  const endDrag = () => {
+    setDrag(null);
+    pressRef.current = null;
+  };
 
   /** PointerDown on a port — starts (or completes) a wire via the click flow. */
   const onPort = (e: PointerEvent, node: NodeData, kind: "in" | "out", port: number) => {
@@ -178,6 +265,7 @@ export function useCircuit(initialDef: LevelDef, notify: (m: string) => void) {
     if (dx * dx + dy * dy > DRAG_THRESHOLD_SQ) {
       setPending(null);
       dragWireStartRef.current = null;
+      pressRef.current = null;
     }
   };
 
@@ -289,6 +377,7 @@ export function useCircuit(initialDef: LevelDef, notify: (m: string) => void) {
     toSvg,
     setPending,
     onBodyDown,
+    onBodyUp,
     onPointerMove,
     endDrag,
     onPort,
