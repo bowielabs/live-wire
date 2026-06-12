@@ -134,11 +134,19 @@ body, button, input, select { transition: background-color 160ms ease, color 160
   100% { transform: translate(calc(-50% + var(--dx, 0px)), calc(-50% + var(--dy, 0px))) rotate(var(--rot, 360deg)) scale(0.5); opacity: 0; }
 }
 
-.gw-pop-in   { animation: gw-fadein 220ms ease-out; }
-.gw-wire-in  { animation: gw-wire-flash 420ms ease-out; }
+@keyframes gw-armed-pulse {
+  0%   { r: 9;  opacity: 0.55; }
+  70%  { r: 15; opacity: 0;    }
+  100% { r: 15; opacity: 0;    }
+}
+
+.gw-pop-in    { animation: gw-fadein 220ms ease-out; }
+.gw-wire-in   { animation: gw-wire-flash 420ms ease-out; }
+.gw-armed-ring { animation: gw-armed-pulse 1100ms ease-out infinite; }
 
 /* respect users who don't want animations */
 @media (prefers-reduced-motion: reduce) {
   .gw-pop-in, .gw-wire-in { animation: none !important; }
+  .gw-armed-ring { animation: none !important; opacity: 0.5 !important; }
   span[style*="gw-confetti"] { animation: none !important; opacity: 0 !important; }
 }

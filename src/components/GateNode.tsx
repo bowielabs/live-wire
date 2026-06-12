@@ -10,6 +10,7 @@ export interface GateNodeProps {
   value: Signal;
   ports: Ports;
   onBodyDown: (e: PointerEvent, node: NodeData) => void;
+  onBodyUp: (e: PointerEvent, node: NodeData) => void;
   onPort: (e: PointerEvent, node: NodeData, kind: "in" | "out", port: number) => void;
   onPortUp: (e: PointerEvent, node: NodeData, kind: "in" | "out", port: number) => void;
   onDelete: (id: string) => void;
@@ -22,6 +23,7 @@ export default function GateNode({
   value,
   ports,
   onBodyDown,
+  onBodyUp,
   onPort,
   onPortUp,
   onDelete,
@@ -49,7 +51,7 @@ export default function GateNode({
       )}
       {/* output stub */}
       <line x1={node.x + w} y1={node.y + h / 2} x2={node.x + w + 11} y2={node.y + h / 2}
-        stroke={sigColor(value)} strokeWidth={2.4} />
+        stroke={sigColor(value)} strokeWidth={2.4} style={{ pointerEvents: "none" }} />
       {/* XOR / XNOR extra back arc */}
       {geom.back && (
         <path d={geom.back} fill="none" stroke={stroke} strokeWidth={sw}
@@ -59,6 +61,7 @@ export default function GateNode({
       <path d={geom.body} fill={C.gateBody} stroke={stroke} strokeWidth={sw}
         strokeLinejoin="round"
         onPointerDown={(e) => onBodyDown(e, node)}
+        onPointerUp={(e) => onBodyUp(e, node)}
         style={{ cursor: "grab", filter: lit ? `drop-shadow(0 0 5px ${C.glowOn})` : "none" }} />
       {/* negation bubble (NOT / NAND / NOR / XNOR) */}
       {def.neg && (
@@ -87,6 +90,10 @@ export default function GateNode({
             onPointerUp={(e) => onPortUp(e, node, "in", p.idx)}
             style={{ cursor: "crosshair" }}>
             <circle cx={p.x} cy={p.y} r={10} fill="transparent" />
+            {sel && (
+              <circle className="gw-armed-ring" cx={p.x} cy={p.y} r={9} fill="none"
+                stroke={C.accent} strokeWidth={2} style={{ pointerEvents: "none" }} />
+            )}
             <circle cx={p.x} cy={p.y} r={5.2} fill={sigColor(iv)}
               stroke={sel ? C.accent : C.portRing} strokeWidth={sel ? 2.4 : 1.5} />
           </g>
@@ -99,6 +106,10 @@ export default function GateNode({
           onPointerUp={(e) => onPortUp(e, node, "out", 0)}
           style={{ cursor: "crosshair" }}>
           <circle cx={ports.output.x} cy={ports.output.y} r={10} fill="transparent" />
+          {pending && pending.node === node.id && pending.kind === "out" && (
+            <circle className="gw-armed-ring" cx={ports.output.x} cy={ports.output.y} r={9}
+              fill="none" stroke={C.accent} strokeWidth={2} style={{ pointerEvents: "none" }} />
+          )}
           <circle cx={ports.output.x} cy={ports.output.y} r={5.2} fill={sigColor(value)}
             stroke={pending && pending.node === node.id && pending.kind === "out" ? C.accent : C.portRing}
             strokeWidth={pending && pending.node === node.id && pending.kind === "out" ? 2.4 : 1.5} />
