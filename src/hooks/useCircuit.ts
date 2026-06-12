@@ -3,7 +3,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import type { GateType, LevelDef, NodeData, Pending, Wire } from "../types";
 import type { ShareV1 } from "../lib/share";
 import { buildBoard } from "../engine/board";
-import { fitViewBox, portsOf, VBH, VBW } from "../engine/geometry";
+import { fitViewBox, placeGate, portsOf, VBH, VBW } from "../engine/geometry";
 import { bodyTargetPoint, nextCyclePort, smartStartPort } from "../engine/attach";
 import { makesCycle, simulate } from "../engine/simulate";
 import { play } from "../lib/sound";
@@ -55,6 +55,8 @@ export function useCircuit(initialDef: LevelDef, notify: (m: string) => void) {
   const dragWireStartRef = useRef<{ x: number; y: number } | null>(null);
   /** The current body press, if any (see Press). */
   const pressRef = useRef<Press | null>(null);
+  /** Expected gate count for the active level — drives gate drop placement. */
+  const parRef = useRef(initialDef.par);
 
   /* ---- adaptive viewBox: frame the content, zooming in on sparse levels ---- */
   const viewBox = useMemo(() => fitViewBox(nodes), [nodes]);
@@ -292,9 +294,12 @@ export function useCircuit(initialDef: LevelDef, notify: (m: string) => void) {
 
   /** Click-to-place: add a gate at the conventional spawn coords. */
   const addGate = (type: GateType) => {
-    const k = gateSeq.current++;
-    const id = "g" + k;
-    setNodes((ns) => [...ns, { id, type, x: 250 + (k % 3) * 44, y: 70 + (k % 4) * 84 }]);
+    const id = "g" + gateSeq.current++;
+    setNodes((ns) => {
+      const gateCount = ns.filter((n) => n.type !== "INPUT" && n.type !== "OUTPUT").length;
+      const pos = placeGate(ns, Math.max(1, parRef.current), gateCount);
+      return [...ns, { id, type, ...pos }];
+    });
     play("gate-place");
   };
 
@@ -320,6 +325,7 @@ export function useCircuit(initialDef: LevelDef, notify: (m: string) => void) {
   const loadBoard = useCallback((d: LevelDef) => {
     const b = buildBoard(d);
     gateSeq.current = 0;
+    parRef.current = d.par;
     setNodes(b.nodes);
     setWires([]);
     setInputValues(b.inputValues);
@@ -360,6 +366,7 @@ export function useCircuit(initialDef: LevelDef, notify: (m: string) => void) {
     }
 
     gateSeq.current = gateNodes.length;
+    parRef.current = def.par;
     setNodes(newNodes);
     setWires(acceptedWires);
     setInputValues(newInputValues);
