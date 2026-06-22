@@ -46,6 +46,39 @@ export function simulate(
   return memo;
 }
 
+/**
+ * Count the gates (excluding INPUT/OUTPUT) whose output transitively feeds the
+ * OUTPUT node — i.e. gates that actually contribute to Q. Gates left dangling
+ * or wired off to the side don't count, so a "prove the identity" level can't
+ * be satisfied by padding the board with decorative gates.
+ */
+export function contributingGateCount(nodes: NodeData[], wires: Wire[]): number {
+  const out = nodes.find((n) => n.type === "OUTPUT");
+  if (!out) return 0;
+  const feeders: Record<string, string[]> = {};
+  wires.forEach((w) => (feeders[w.to.node] = feeders[w.to.node] || []).push(w.from.node));
+  const byId: Record<string, NodeData> = {};
+  nodes.forEach((n) => (byId[n.id] = n));
+
+  const seen = new Set<string>();
+  const stack = [out.id];
+  while (stack.length) {
+    const id = stack.pop()!;
+    for (const src of feeders[id] || [])
+      if (!seen.has(src)) {
+        seen.add(src);
+        stack.push(src);
+      }
+  }
+
+  let count = 0;
+  seen.forEach((id) => {
+    const n = byId[id];
+    if (n && n.type !== "INPUT" && n.type !== "OUTPUT") count++;
+  });
+  return count;
+}
+
 /** True if adding/keeping these wires would introduce a feedback loop. */
 export function makesCycle(wires: Wire[]): boolean {
   const adj: Record<string, string[]> = {};

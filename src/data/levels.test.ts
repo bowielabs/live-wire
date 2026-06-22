@@ -209,6 +209,24 @@ describe("every level is realizable with its allowed palette", () => {
   });
 });
 
+describe("minGates (prove-the-identity levels)", () => {
+  const byName = (name: string) => LEVELS.find((l) => l.name === name)!;
+
+  it("flags the identity puzzles whose truth table is otherwise shortcut-able", () => {
+    expect(byName("Double Negative").minGates).toBe(2); // ¬¬A = A
+    expect(byName("Triple Flip").minGates).toBe(3);     // ¬¬¬A = ¬A
+    expect(byName("Idempotence").minGates).toBe(1);     // A ∧ A = A
+    expect(byName("Absorption").minGates).toBe(2);      // A ∨ (A ∧ B) = A
+  });
+
+  it("never demands more gates than par, and par stays achievable", () => {
+    LEVELS.filter((l) => l.minGates).forEach((l) => {
+      expect(l.minGates!).toBeGreaterThanOrEqual(1);
+      expect(l.minGates!).toBeLessThanOrEqual(l.par);
+    });
+  });
+});
+
 describe("sandbox", () => {
   it("exposes all gates and has no objective", () => {
     expect(SANDBOX.palette).toEqual(ALL_GATES);

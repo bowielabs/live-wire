@@ -25,8 +25,9 @@ const L = (
   palette: GateType[],
   concept: string,
   target: TargetFn | null,
-  irl?: string
-): LevelDef => ({ w, name, goal, par, inputs, palette, concept, target, irl });
+  irl?: string,
+  minGates?: number
+): LevelDef => ({ w, name, goal, par, inputs, palette, concept, target, irl, minGates });
 
 /* ---- 100 levels ---- */
 export const LEVELS: LevelDef[] = [
@@ -62,7 +63,7 @@ export const LEVELS: LevelDef[] = [
   L(1, "Double Negative", "Q = A", 2, ["A"], ["NOT"],
     "Flip it, then flip it back. Two NOT gates cancel out — living proof that ¬¬A = A.",
     (a) => a,
-    "Signal buffers in long cables invert twice to clean the signal up."),
+    "Signal buffers in long cables invert twice to clean the signal up.", 2),
   L(1, "DIY NAND", "Q = ¬(A ∧ B)", 2, ["A", "B"], ["AND", "NOT"],
     "You've met NAND — now build it yourself: an AND gate with a NOT stuck on the end. Congrats, you're an engineer.",
     (a, b) => !(a && b)),
@@ -118,10 +119,10 @@ export const LEVELS: LevelDef[] = [
     (a, b) => !(a || b)),
   L(3, "Absorption", "Q = A ∨ (A ∧ B)", 2, ["A", "B"], ["AND", "OR"],
     "Boolean algebra says A∨(A∧B) = A — the B gets absorbed and never matters. Build it and prove B is dead weight.",
-    (a) => a),
+    (a) => a, undefined, 2),
   L(3, "Idempotence", "Q = A ∧ A", 1, ["A"], ["AND"],
     "Feed a signal into an AND gate with itself: A∧A = A. Identical twins change nothing.",
-    (a) => a),
+    (a) => a, undefined, 1),
   L(3, "Distribution", "Q = A ∧ (B ∨ C)", 3, ["A", "B", "C"], ["AND", "OR"],
     "The distributive law: A∧(B∨C) = (A∧B)∨(A∧C). Build either side — same truth table, your choice.",
     (a, b, c) => a && (b || c)),
@@ -133,7 +134,7 @@ export const LEVELS: LevelDef[] = [
     (a, b) => a === b),
   L(3, "Triple Flip", "Q = ¬A", 3, ["A"], ["NOT"],
     "Three NOT gates in a row. ¬¬¬A = ¬A. It's the parity of the flips that matters, not the count.",
-    (a) => !a),
+    (a) => !a, undefined, 3),
   L(3, "Parity Trio", "Q = A ⊕ B ⊕ C", 2, ["A", "B", "C"], ["XOR"],
     "Chain XORs together: the output is 1 when an ODD number of inputs are 1. This is 'parity' — remember it.",
     (a, b, c) => cnt(a, b, c) % 2 === 1,

@@ -6,6 +6,7 @@ export interface BottomBarProps {
   results: VerifyResult | null;
   gateCount: number;
   par: number;
+  minGates?: number;
   hasTarget: boolean;
   showNext: boolean;
   onToggleTruth: () => void;
@@ -18,6 +19,7 @@ export default function BottomBar({
   results,
   gateCount,
   par,
+  minGates,
   hasTarget,
   showNext,
   onToggleTruth,
@@ -45,6 +47,7 @@ export default function BottomBar({
       <span style={{ color: C.muted, fontFamily: "var(--font-mono)", fontSize: 12 }}>
         gates: {gateCount}
         {hasTarget ? ` · par ${par}` : ""}
+        {minGates ? ` · prove with ≥${minGates}` : ""}
       </span>
       {hasTarget && (
         <button onClick={onToggleTruth} title="Open truth table" style={btn()}>
