@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { NodeData, Wire } from "../types";
-import { makesCycle, simulate } from "./simulate";
+import { contributingGateCount, makesCycle, simulate } from "./simulate";
 
 let wid = 0;
 const wire = (from: string, to: string, port: number): Wire => ({
@@ -62,6 +62,40 @@ describe("simulate", () => {
   it("returns null for an OUTPUT with nothing wired to it", () => {
     const nodes = [input("a"), output()];
     expect(simulate(nodes, [], { a: true }).out).toBeNull();
+  });
+});
+
+describe("contributingGateCount", () => {
+  it("counts zero when the input is wired straight to Q (the shortcut)", () => {
+    const nodes = [input("a"), output()];
+    expect(contributingGateCount(nodes, [wire("a", "out", 0)])).toBe(0);
+  });
+
+  it("counts the two NOTs of an honest ¬¬A = A proof", () => {
+    const nodes = [input("a"), gate("g1", "NOT"), gate("g2", "NOT"), output()];
+    const wires = [wire("a", "g1", 0), wire("g1", "g2", 0), wire("g2", "out", 0)];
+    expect(contributingGateCount(nodes, wires)).toBe(2);
+  });
+
+  it("ignores dangling gates not wired into Q (can't be gamed)", () => {
+    const nodes = [input("a"), gate("g1", "NOT"), gate("dead", "NOT"), output()];
+    // g1 feeds Q; 'dead' is placed but wired to nothing on the output side.
+    const wires = [wire("a", "g1", 0), wire("g1", "out", 0), wire("a", "dead", 0)];
+    expect(contributingGateCount(nodes, wires)).toBe(1);
+  });
+
+  it("counts every gate along the feeding path", () => {
+    const nodes = [input("a"), input("b"), gate("or", "OR"), gate("and", "AND"), output()];
+    const wires = [
+      wire("a", "or", 0), wire("b", "or", 1),
+      wire("a", "and", 0), wire("or", "and", 1),
+      wire("and", "out", 0),
+    ];
+    expect(contributingGateCount(nodes, wires)).toBe(2);
+  });
+
+  it("returns 0 when there is no output node", () => {
+    expect(contributingGateCount([input("a"), gate("g", "NOT")], [wire("a", "g", 0)])).toBe(0);
   });
 });
 

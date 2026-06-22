@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { VerifyResult, VerifyRow } from "./types";
 import { LEVELS, SANDBOX } from "./data/levels";
-import { simulate } from "./engine/simulate";
+import { contributingGateCount, simulate } from "./engine/simulate";
 import { C } from "./theme";
 import { useCircuit } from "./hooks/useCircuit";
 import { useProgress } from "./hooks/useProgress";
@@ -148,8 +148,15 @@ export default function App() {
       if (!pass) allPass = false;
       rows.push({ bits, out, exp, pass });
     }
-    setResults({ rows, allPass });
-    if (allPass) {
+    // "Prove the identity" levels demand the construction, not a truth-table
+    // shortcut: the right rows aren't enough if too few gates actually feed Q.
+    const need = def.minGates ?? 0;
+    const used = need ? contributingGateCount(circuit.nodes, circuit.wires) : 0;
+    const shortcut = allPass && used < need;
+    const accepted = allPass && !shortcut;
+    setResults({ rows, allPass: accepted });
+
+    if (accepted) {
       setSolved((s) => ({ ...s, [levelIdx as number]: circuit.gateCount }));
       setMessage(
         circuit.gateCount <= def.par
@@ -158,6 +165,12 @@ export default function App() {
       );
       play("success");
       setSolveToken((t) => t + 1);
+    } else if (shortcut) {
+      setMessage(
+        `Right truth table — but that's the shortcut. This level is about proving it: ` +
+          `build the full circuit with at least ${need} gate${need > 1 ? "s" : ""} wired into Q.`
+      );
+      play("fail");
     } else {
       setMessage("Not quite — the highlighted rows do not match. Keep going.");
       play("fail");
@@ -211,6 +224,7 @@ export default function App() {
           results={results}
           gateCount={circuit.gateCount}
           par={def.par}
+          minGates={def.minGates}
           hasTarget={!!def.target}
           showNext={showNext}
           onToggleTruth={() => setDrawer("info")}

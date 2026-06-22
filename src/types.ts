@@ -63,6 +63,10 @@ export interface LevelDef {
   concept: string;
   target: TargetFn | null;
   irl?: string;
+  /** Minimum gates that must actually feed Q to solve. Used by "prove the
+      identity" levels (e.g. ¬¬A = A) whose truth table is otherwise
+      satisfiable with a shortcut, defeating the lesson. */
+  minGates?: number;
 }
 
 export interface World {
