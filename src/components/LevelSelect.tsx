@@ -1,6 +1,7 @@
 import type { RefObject } from "react";
 import type { Progress } from "../types";
 import { LEVELS, WORLDS } from "../data/levels";
+import { UNLOCK_ALL } from "../dev";
 import { C } from "../theme";
 
 export interface LevelSelectProps {
@@ -12,7 +13,7 @@ export interface LevelSelectProps {
 }
 
 export default function LevelSelect({ solved, levelIdx, activeRef, onSelect, onResetProgress }: LevelSelectProps) {
-  const unlocked = (i: number) => i === 0 || i in solved || i - 1 in solved;
+  const unlocked = (i: number) => UNLOCK_ALL || i === 0 || i in solved || i - 1 in solved;
   const starsFor = (i: number) => (!(i in solved) ? 0 : solved[i] <= LEVELS[i].par ? 2 : 1);
 
   return (
@@ -23,6 +24,22 @@ export default function LevelSelect({ solved, levelIdx, activeRef, onSelect, onR
           <span style={{ color: C.faint, fontFamily: "var(--font-mono)", fontSize: 11 }}>
             {Object.keys(solved).length}/{LEVELS.length} solved
           </span>
+          {UNLOCK_ALL && (
+            <span
+              title="VITE_UNLOCK_ALL — local dev only"
+              style={{
+                marginLeft: 6,
+                color: C.warn,
+                fontFamily: "var(--font-mono)",
+                fontSize: 10,
+                border: `1px solid ${C.warn}`,
+                borderRadius: 5,
+                padding: "1px 5px",
+              }}
+            >
+              dev: all unlocked
+            </span>
+          )}
         </h3>
         {Object.keys(solved).length > 0 && (
           <button
