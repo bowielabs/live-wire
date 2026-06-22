@@ -1,25 +1,39 @@
 import type { LevelDef } from "../types";
 import { WORLDS } from "../data/levels";
-import { C } from "../theme";
+import { btn, C } from "../theme";
 
 export interface LevelInfoProps {
   def: LevelDef;
   levelIdx: number | "sandbox";
+  /** when provided, show a pin/unpin control in the header */
+  onTogglePin?: () => void;
+  pinned?: boolean;
 }
 
-export default function LevelInfo({ def, levelIdx }: LevelInfoProps) {
+export default function LevelInfo({ def, levelIdx, onTogglePin, pinned }: LevelInfoProps) {
   const world = WORLDS.find((x) => x.id === def.w);
   return (
     <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, padding: 15 }}>
-      {world ? (
-        <div style={{ fontFamily: "var(--font-mono)", fontSize: 10.5, letterSpacing: 1, color: world.color, marginBottom: 4 }}>
-          WORLD {world.id} · {world.name.toUpperCase()}
-        </div>
-      ) : (
-        <div style={{ fontFamily: "var(--font-mono)", fontSize: 10.5, letterSpacing: 1, color: C.faint, marginBottom: 4 }}>
-          FREE PLAY
-        </div>
-      )}
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+        {world ? (
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: 10.5, letterSpacing: 1, color: world.color, marginBottom: 4 }}>
+            WORLD {world.id} · {world.name.toUpperCase()}
+          </div>
+        ) : (
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: 10.5, letterSpacing: 1, color: C.faint, marginBottom: 4 }}>
+            FREE PLAY
+          </div>
+        )}
+        {onTogglePin && (
+          <button
+            onClick={onTogglePin}
+            title={pinned ? "Unpin from the board" : "Pin beside the board"}
+            style={btn({ padding: "3px 8px", fontSize: 11.5, marginTop: -4, ...(pinned ? { borderColor: C.accent, color: C.accent } : {}) })}
+          >
+            {pinned ? "📌 Unpin" : "📌 Pin"}
+          </button>
+        )}
+      </div>
       <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
         <h2 style={{ margin: 0, fontSize: 19 }}>{def.name}</h2>
         <span style={{ color: C.accent, fontFamily: "var(--font-mono)", fontSize: 12 }}>

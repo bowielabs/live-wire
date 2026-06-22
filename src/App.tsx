@@ -2,12 +2,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { VerifyResult, VerifyRow } from "./types";
 import { LEVELS, SANDBOX } from "./data/levels";
 import { contributingGateCount, simulate } from "./engine/simulate";
-import { C } from "./theme";
+import { btn, C } from "./theme";
 import { useCircuit } from "./hooks/useCircuit";
 import { useProgress } from "./hooks/useProgress";
 import { useTheme } from "./hooks/useTheme";
 import { useTutorial } from "./hooks/useTutorial";
 import { useMuted } from "./hooks/useMuted";
+import { usePinned } from "./hooks/usePinned";
 import { play } from "./lib/sound";
 import { readShareFromUrl } from "./lib/share";
 import AppBar from "./components/AppBar";
@@ -58,6 +59,8 @@ export default function App() {
   const { solved, setSolved, resetProgress } = useProgress();
   const { theme, toggle: toggleTheme } = useTheme();
   const { muted, toggle: toggleMute } = useMuted();
+  const { pinned: pinnedTruth, toggle: togglePinTruth } = usePinned("gw:pin-truth");
+  const { pinned: pinnedInfo, toggle: togglePinInfo } = usePinned("gw:pin-info");
   const circuit = useCircuit(initialDef, setMessage);
   const [solveToken, setSolveToken] = useState(0);
 
@@ -217,20 +220,54 @@ export default function App() {
           onReset={() => loadLevel(levelIdx)}
         />
 
-        <CircuitCanvas circuit={circuit} />
+        <div style={{ display: "flex", gap: 10, alignItems: "flex-start", flexWrap: "wrap" }}>
+          <div style={{ flex: "1 1 520px", minWidth: 0 }}>
+            <CircuitCanvas circuit={circuit} />
 
-        <BottomBar
-          message={message}
-          results={results}
-          gateCount={circuit.gateCount}
-          par={def.par}
-          minGates={def.minGates}
-          hasTarget={!!def.target}
-          showNext={showNext}
-          onToggleTruth={() => setDrawer("info")}
-          onVerify={runVerify}
-          onNext={() => loadLevel((levelIdx as number) + 1)}
-        />
+            <BottomBar
+              message={message}
+              results={results}
+              gateCount={circuit.gateCount}
+              par={def.par}
+              minGates={def.minGates}
+              hasTarget={!!def.target}
+              pinnedTruth={pinnedTruth}
+              showNext={showNext}
+              onToggleTruth={() => setDrawer("info")}
+              onTogglePinTruth={togglePinTruth}
+              onVerify={runVerify}
+              onNext={() => loadLevel((levelIdx as number) + 1)}
+            />
+          </div>
+
+          {(pinnedInfo || (!!def.target && pinnedTruth)) && (
+            <div
+              style={{
+                flex: "1 1 260px",
+                minWidth: 240,
+                maxWidth: 340,
+                position: "sticky",
+                top: 12,
+                display: "flex",
+                flexDirection: "column",
+                gap: 10,
+              }}
+            >
+              {pinnedInfo && (
+                <LevelInfo def={def} levelIdx={levelIdx} onTogglePin={togglePinInfo} pinned />
+              )}
+              {!!def.target && pinnedTruth && (
+                <TruthTable
+                  def={def}
+                  results={results}
+                  currentRow={currentRow}
+                  onTogglePin={togglePinTruth}
+                  pinned
+                />
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* ---- left drawer: levels + how to play ---- */}
@@ -255,9 +292,23 @@ export default function App() {
 
       {/* ---- right drawer: level info + truth table + share ---- */}
       <Drawer side="right" open={drawer === "info"} onClose={closeDrawer} title="Level details">
-        <LevelInfo def={def} levelIdx={levelIdx} />
+        {pinnedInfo ? (
+          <PinnedNote label="Problem description is pinned beside the board." onUnpin={togglePinInfo} />
+        ) : (
+          <LevelInfo def={def} levelIdx={levelIdx} onTogglePin={togglePinInfo} pinned={false} />
+        )}
         <div style={{ marginTop: 12 }}>
-          <TruthTable def={def} results={results} currentRow={currentRow} />
+          {!!def.target && pinnedTruth ? (
+            <PinnedNote label="Truth table is pinned beside the board." onUnpin={togglePinTruth} />
+          ) : (
+            <TruthTable
+              def={def}
+              results={results}
+              currentRow={currentRow}
+              onTogglePin={togglePinTruth}
+              pinned={false}
+            />
+          )}
         </div>
         <div style={{ marginTop: 12 }}>
           <ShareCircuit
@@ -276,6 +327,31 @@ export default function App() {
 
       {/* ---- solve celebration ---- */}
       <Confetti token={solveToken} />
+    </div>
+  );
+}
+
+/** Drawer stand-in shown when a panel has been pinned out to the board. */
+function PinnedNote({ label, onUnpin }: { label: string; onUnpin: () => void }) {
+  return (
+    <div
+      style={{
+        background: C.panel,
+        border: `1px solid ${C.border}`,
+        borderRadius: 12,
+        padding: 15,
+        fontSize: 12.5,
+        color: C.muted,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 8,
+      }}
+    >
+      <span>📌 {label}</span>
+      <button onClick={onUnpin} style={btn({ padding: "3px 8px", fontSize: 11.5 })}>
+        Unpin
+      </button>
     </div>
   );
 }
