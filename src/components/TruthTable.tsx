@@ -1,15 +1,18 @@
 import { useMemo } from "react";
 import type { LevelDef, TruthRow, VerifyResult } from "../types";
-import { C } from "../theme";
+import { btn, C } from "../theme";
 
 export interface TruthTableProps {
   def: LevelDef;
   results: VerifyResult | null;
   /** index of the row matching the current input toggles */
   currentRow: number;
+  /** when provided, show a pin/unpin control in the header */
+  onTogglePin?: () => void;
+  pinned?: boolean;
 }
 
-export default function TruthTable({ def, results, currentRow }: TruthTableProps) {
+export default function TruthTable({ def, results, currentRow, onTogglePin, pinned }: TruthTableProps) {
   const truth = useMemo<TruthRow[] | null>(() => {
     if (!def.target) return null;
     const n = def.inputs.length;
@@ -26,7 +29,18 @@ export default function TruthTable({ def, results, currentRow }: TruthTableProps
 
   return (
     <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, padding: 15 }}>
-      <h3 style={{ margin: "0 0 9px", fontSize: 14, color: C.text }}>Truth Table</h3>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 9 }}>
+        <h3 style={{ margin: 0, fontSize: 14, color: C.text }}>Truth Table</h3>
+        {onTogglePin && (
+          <button
+            onClick={onTogglePin}
+            title={pinned ? "Unpin from the board" : "Pin beside the board to watch live"}
+            style={btn({ padding: "3px 8px", fontSize: 11.5, ...(pinned ? { borderColor: C.accent, color: C.accent } : {}) })}
+          >
+            {pinned ? "📌 Unpin" : "📌 Pin"}
+          </button>
+        )}
+      </div>
       <div style={{ maxHeight: 270, overflowY: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "var(--font-mono)", fontSize: 13 }}>
           <thead>

@@ -8,8 +8,10 @@ export interface BottomBarProps {
   par: number;
   minGates?: number;
   hasTarget: boolean;
+  pinnedTruth: boolean;
   showNext: boolean;
   onToggleTruth: () => void;
+  onTogglePinTruth: () => void;
   onVerify: () => void;
   onNext: () => void;
 }
@@ -21,8 +23,10 @@ export default function BottomBar({
   par,
   minGates,
   hasTarget,
+  pinnedTruth,
   showNext,
   onToggleTruth,
+  onTogglePinTruth,
   onVerify,
   onNext,
 }: BottomBarProps) {
@@ -52,6 +56,15 @@ export default function BottomBar({
       {hasTarget && (
         <button onClick={onToggleTruth} title="Open truth table" style={btn()}>
           ≣ Truth
+        </button>
+      )}
+      {hasTarget && (
+        <button
+          onClick={onTogglePinTruth}
+          title={pinnedTruth ? "Unpin the truth table" : "Pin the truth table beside the board"}
+          style={btn(pinnedTruth ? { borderColor: C.accent, color: C.accent } : {})}
+        >
+          📌 {pinnedTruth ? "Pinned" : "Pin"}
         </button>
       )}
       {hasTarget && (
